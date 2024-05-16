@@ -1,25 +1,38 @@
 import React from 'react';
-import logo from './logo.svg';
 import './App.css';
+import {BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
+import HomePage from './screen/HomePage';
+
+import logo from './assets/img/logoSU.png';
 
 function App() {
+  
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <Router>
+      <div className="navbar">
+          <div className='navbar-title-container'>
+            <div>
+              <img src={logo} className='navbar-logo' alt='logo' />
+              <h2  className='navbar-title'>Science-U Dashboard</h2>
+            </div>
+          </div>
+
+          <div className='separator'></div>
+
+          <div className='navbar-item-container'>
+            <Link to="/home" className='navbar-item-container'>
+            <div className='navbar-item-icon'><p>Icon</p></div>
+            <div className='navabar-item-title'><p>Home</p></div>
+            </Link>
+          </div>
+      </div>
+      <Routes>
+        <Route path="/home" element={<HomePage />} />
+        {/* <Route path="/about" element={<AboutPage />} />
+        <Route path="/contact" element={<ContactPage />} /> */}
+      </Routes>
+    </Router>
   );
 }
 
