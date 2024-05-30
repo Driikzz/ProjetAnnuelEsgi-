@@ -4,6 +4,8 @@ import {BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
 import HomePage from './screen/HomePage';
 
 import logo from './assets/img/logoSU.png';
+import RegisterScreen from './screen/RegisterScreen';
+import LoginScreen from './screen/LoginScreen';
 
 function App() {
   
@@ -31,6 +33,8 @@ function App() {
         <Route path="/home" element={<HomePage />} />
         {/* <Route path="/about" element={<AboutPage />} />
         <Route path="/contact" element={<ContactPage />} /> */}
+        <Route path='/register' element={<RegisterScreen></RegisterScreen>} /> 
+        <Route path='/login' element={<LoginScreen></LoginScreen>} />
       </Routes>
     </Router>
   );

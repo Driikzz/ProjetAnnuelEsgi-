@@ -20,9 +20,8 @@
   left: 0;
   top: 0;
   z-index: 1000;
-  background-color: #dedede!important;
-  border-top-right-radius: 10px;
-  border-bottom-right-radius: 10px;
+  background-color: #ceddee!important;
+  height: 100%;
 }
 
 .navbar-title-container{
@@ -52,4 +51,78 @@
 .navabar-item-title p{
   color: black;
 }
+
+/* Register and login Screen */
+
+.container-register{
+  background: linear-gradient(90deg, rgba(67,123,187,1) 0%, rgba(109,153,204,1) 57%, rgba(206,221,238,1) 100%);
+  overflow: hidden!important;
+}
+.Form{
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+  align-items: center;
+  justify-content: center;
+}
+.register-form h2{
+  margin: 0;
+  font-weight: 600;
+}
+.register-form p{
+  margin: 0;
+}
+.form-container{
+  margin-bottom: 120px;
+  margin-top: 50px;
+  box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px;
+  background-color: #fff;
+  padding: 20px;
+  border-radius: 20px;
+  min-width: 400px;
+  margin-top: 100px;
+}
+.register-form{
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 20px;
+}
+.register-item{
+  display: flex;
+  gap: 10px;
+  flex-direction: row;
+  align-items: center;
+}
+.input-register{
+  border-radius: 5px;
+  border: 1px solid #270D60;
+  padding: 5px;
+  min-width: 200px;
+  min-height: 25px;
+}
+.register-img{
+  max-width: 200px;
+  margin: 0;
+  padding: 0;
+}
+.register-button{
+  background-color: #437bbb;
+  color: #fff;
+  border-radius: 20px ;
+  min-width: 200px;
+  padding: 10px;
+}
+.register-button:focus{
+  background-color: #FBF7FF;
+  color: #4F12B8;
+}
+.padding-register{
+  padding-bottom: 50px;
+}
+body.disable-scroll {
+  overflow: hidden; /* Désactiver tout défilement */
+}
+
 
