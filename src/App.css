@@ -29,12 +29,11 @@
 }
 
 .navbar-logo{
-  max-width: 100px;
-  padding-left: 50px;
+  max-width: 150px;
 }
 
 .navbar-item-container{
-  margin-top: 20px;
+  margin-top: 10px;
   display: flex;
   justify-content:center;
   align-items: center;
@@ -50,6 +49,21 @@
 }
 .navabar-item-title p{
   color: black;
+}
+
+.userImg-container{
+  display: flex;
+  align-items: center;  
+}
+.user-img{
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  margin-right: 10px;
+}
+.userImg-container h3{
+  font-size: 18px;
+  font-weight: 600;
 }
 
 /* Register and login Screen */

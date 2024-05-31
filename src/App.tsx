@@ -6,6 +6,7 @@ import HomePage from './screen/HomePage';
 import logo from './assets/img/logoSU.png';
 import RegisterScreen from './screen/RegisterScreen';
 import LoginScreen from './screen/LoginScreen';
+import userImage from './assets/img/userPicture.png';
 
 function App() {
   
@@ -14,14 +15,19 @@ function App() {
     <Router>
       <div className="navbar">
           <div className='navbar-title-container'>
+            
             <div>
               <img src={logo} className='navbar-logo' alt='logo' />
-              <h2  className='navbar-title'>Science-U Dashboard</h2>
+              <div className='separator'></div>
+              <div className='userImg-container'>
+                <img  className="user-img" src={userImage} alt="" />
+                <h3>Hugo Decrypte</h3>
+              </div>
             </div>
+          
           </div>
 
           <div className='separator'></div>
-
           <div className='navbar-item-container'>
             <Link to="/home" className='navbar-item-container'>
             <div className='navbar-item-icon'><p>Icon</p></div>
