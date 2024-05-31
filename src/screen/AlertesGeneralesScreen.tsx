@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import './styles/AlertesGeneralesScreen.css'; // Importer le fichier CSS
 
 interface Alerte {
   id: number;
@@ -41,49 +42,49 @@ const AlertesGeneralesScreen: React.FC = () => {
   const visibleAlertes = alertes.slice(currentIndex, currentIndex + 3).concat(alertes.slice(0, Math.max(0, currentIndex + 3 - alertes.length)));
 
   return (
-    <div style={styles.container}>
+    <div className="container">
       <div>
-        <h1 style={styles.header}>Tableau de Bord des Alertes</h1>
+        <h1 className="header">Tableau de Bord des Alertes</h1>
 
-        <div style={styles.notificationSummary} onClick={() => setShowPopup(true)}>
+        <div className="notificationSummary" onClick={() => setShowPopup(true)}>
           <span>Notifications: {alertes.length}</span>
           <span>Depuis votre dernière connexion: {newAlertes}</span>
         </div>
 
-        <div style={styles.alertesList}>
-          <h2 style={styles.subHeader}>Liste des Alertes en Cours</h2>
-          <div style={styles.cardContainer}>
-            <button onClick={handlePrevClick} style={styles.arrowButton}>‹</button>
-            <div style={styles.cards}>
+        <div className="alertesList">
+          <h2 className="subHeader">Liste des Alertes en Cours</h2>
+          <div className="cardContainer">
+            <button onClick={handlePrevClick} className="arrowButton">‹</button>
+            <div className="cards">
               {visibleAlertes.map((alerte) => (
-                <div key={alerte.id} style={styles.card}>
-                  <div style={styles.cardHeader}>
+                <div key={alerte.id} className="card">
+                  <div className="cardHeader">
                     <strong>{alerte.type}</strong>
                     <span>{alerte.date}</span>
                   </div>
-                  <h3 style={styles.cardTitle}>{alerte.titre}</h3>
-                  <p style={styles.cardDescription}>{alerte.description}</p>
-                  <button onClick={() => handleDismiss(alerte.id)} style={styles.dismissButton}>Marquer comme traité</button>
+                  <h3 className="cardTitle">{alerte.titre}</h3>
+                  <p className="cardDescription">{alerte.description}</p>
+                  <button onClick={() => handleDismiss(alerte.id)} className="dismissButton">Marquer comme traité</button>
                 </div>
               ))}
             </div>
-            <button onClick={handleNextClick} style={styles.arrowButton}>›</button>
+            <button onClick={handleNextClick} className="arrowButton">›</button>
           </div>
         </div>
 
-        <div style={styles.suiviAlertes}>
-          <h2 style={styles.subHeader}>Section de Suivi des Alertes</h2>
+        <div className="suiviAlertes">
+          <h2 className="subHeader">Section de Suivi des Alertes</h2>
           {/* Intégration du suivi des alertes ici */}
         </div>
 
         {showPopup && (
-          <div style={styles.popup}>
-            <div style={styles.popupContent}>
+          <div className="popup">
+            <div className="popupContent">
               <h2>Résumé des Notifications</h2>
-              <button onClick={() => setShowPopup(false)} style={styles.closeButton}>Fermer</button>
-              <ul style={styles.popupList}>
+              <button onClick={() => setShowPopup(false)} className="closeButton">Fermer</button>
+              <ul className="popupList">
                 {alertes.map((alerte) => (
-                  <li key={alerte.id} style={styles.popupListItem}>
+                  <li key={alerte.id} className="popupListItem">
                     <strong>{alerte.type}</strong> - {alerte.titre} ({alerte.date})
                     <p>{alerte.description}</p>
                   </li>
@@ -95,142 +96,6 @@ const AlertesGeneralesScreen: React.FC = () => {
       </div>
     </div>
   );
-};
-
-const styles: { [key: string]: React.CSSProperties } = {
-  container: {
-    maxWidth: '1000px',
-    margin: '0 auto',
-    padding: '20px',
-    border: '1px solid #ccc',
-    borderRadius: '8px',
-    backgroundColor: '#f9f9f9',
-    position: "relative",
-    marginTop:80,
-  },
-  header: {
-    textAlign: 'center' as 'center',
-    marginBottom: '20px',
-    fontSize: '24px',
-  },
-  notificationSummary: {
-    position: 'absolute',
-    top: '20px',
-    right: '20px',
-    backgroundColor: '#007BFF',
-    color: '#fff',
-    padding: '10px',
-    borderRadius: '8px',
-    cursor: 'pointer',
-    display: 'flex',
-    flexDirection: 'column',
-    alignItems: 'center',
-  },
-  subHeader: {
-    textAlign: 'center' as 'center',
-    marginBottom: '20px',
-    fontSize: '20px',
-  },
-  alertesList: {},
-  cardContainer: {
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  arrowButton: {
-    backgroundColor: '#007BFF',
-    color: '#fff',
-    border: 'none',
-    borderRadius: '4px',
-    cursor: 'pointer',
-    padding: '10px',
-    fontSize: '20px',
-    margin: '0 10px',
-  },
-  cards: {
-    display: 'flex',
-    gap: '20px',
-    overflow: 'hidden',
-  },
-  card: {
-    backgroundColor: '#fff',
-    borderRadius: '8px',
-    boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)',
-    padding: '20px',
-    width: '300px',
-    textAlign: 'center' as 'center',
-    position: 'relative',
-  },
-  cardHeader: {
-    display: 'flex',
-    justifyContent: 'space-between',
-    borderBottom: '1px solid #eee',
-    paddingBottom: '10px',
-    marginBottom: '10px',
-  },
-  cardTitle: {
-    fontSize: '18px',
-    margin: '10px 0',
-  },
-  cardDescription: {
-    fontSize: '14px',
-    color: '#555',
-  },
-  dismissButton: {
-    backgroundColor: '#dc3545',
-    color: '#fff',
-    border: 'none',
-    borderRadius: '4px',
-    padding: '10px',
-    cursor: 'pointer',
-    marginTop: '10px',
-  },
-  suiviAlertes: {
-    marginTop: '40px',
-  },
-  popup: {
-    position: 'fixed',
-    top: '0',
-    left: '0',
-    width: '100%',
-    height: '100%',
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    padding: '20px',
-  },
-   popupContent: {
-    backgroundColor: '#fff',
-    padding: '20px',
-    borderRadius: '8px',
-    maxWidth: '600px',
-    width: '100%',
-    boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)',
-    position: 'relative',
-    maxHeight: '80%', // Ajouté
-    overflowY: 'auto', // Ajouté
-  },
-  closeButton: {
-    backgroundColor: '#dc3545',
-    color: '#fff',
-    border: 'none',
-    borderRadius: '4px',
-    padding: '10px',
-    cursor: 'pointer',
-    position: 'absolute',
-    top: '10px',
-    right: '10px',
-  },
-  popupList: {
-    listStyleType: 'none',
-    padding: 0,
-  },
-  popupListItem: {
-    marginBottom: '10px',
-    padding: '10px',
-    borderBottom: '1px solid #eee',
-  },
 };
 
 export default AlertesGeneralesScreen;

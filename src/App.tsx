@@ -1,5 +1,4 @@
 import React from 'react';
-import './App.css';
 import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
 import HomePage from './screen/HomePage';
 import RegisterScreen from './screen/RegisterScreen';
@@ -10,6 +9,7 @@ import RelancesScreen from './screen/RelancesScreen';
 import BilanScreen from './screen/BilanScreen';
 import GestionComptesSuiveursScreen from './screen/GestionComptesSuiveursScreen';
 import AlertesGeneralesScreen from './screen/AlertesGeneralesScreen';
+import SuiviEntretiensScreen from './screen/SuiviEntretiensScreen'; // Importer la nouvelle page
 
 import logo from './assets/img/logoSU.png';
 import userImage from './assets/img/userPicture.png';
@@ -38,7 +38,7 @@ function App() {
       </div>
       <Routes>
         <Route path="/home" element={<HomePage />} />
-        <Route path='/register' element={<RegisterScreen />} /> 
+        <Route path='/register' element={<RegisterScreen />} />
         <Route path='/login' element={<LoginScreen />} />
         <Route path='/rdv' element={<PriseRdvScreen />} />
         <Route path='/rdv-mi-parcours' element={<PriseRdvMiParcoursScreen />} />
@@ -46,6 +46,7 @@ function App() {
         <Route path='/bilan' element={<BilanScreen />} />
         <Route path='/gestion-comptes-suiveurs' element={<GestionComptesSuiveursScreen />} />
         <Route path='/alertes' element={<AlertesGeneralesScreen />} />
+        <Route path='/suivi-entretiens' element={<SuiviEntretiensScreen />} /> {/* Nouvelle page */}
       </Routes>
     </Router>
   );
