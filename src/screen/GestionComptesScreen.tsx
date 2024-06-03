@@ -12,7 +12,7 @@ interface Suiveur {
   tags: string[];
 }
 
-const GestionComptesScreen: React.FC = () => {
+const GestionComptesSuiveursScreen: React.FC = () => {
   const [form, setForm] = useState({
     nom: '',
     prenom: '',
@@ -142,7 +142,7 @@ const GestionComptesScreen: React.FC = () => {
           {role} {expandedRoles.includes(role) ? '-' : '+'}
         </h2>
         {expandedRoles.includes(role) && (
-          <table>
+          <table className={editMode ? 'edit-mode' : ''}>
             <thead>
               <tr>
                 <th>Tag</th>
@@ -188,7 +188,7 @@ const GestionComptesScreen: React.FC = () => {
   };
 
   return (
-    <div className="container">
+    <div className={`container ${editMode ? 'edit-mode-container' : ''}`}>
       <h1>Gestion des Comptes Suiveurs Externes</h1>
 
       <div className="header-buttons">
@@ -199,7 +199,7 @@ const GestionComptesScreen: React.FC = () => {
             <button onClick={() => setIsBatchModalOpen(true)}>Ajouter en lot</button>
           </div>
         </div>
-        <FaEdit className="icon-button" onClick={() => setEditMode(!editMode)} />
+        <FaEdit className={`icon-button ${editMode ? 'active' : ''}`} onClick={() => setEditMode(!editMode)} />
         <FaDownload className="icon-button" onClick={handleDownloadTemplate} title="Télécharger le template" />
       </div>
 
@@ -216,111 +216,112 @@ const GestionComptesScreen: React.FC = () => {
               <div className="form-group">
                 <label htmlFor="prenom">Prénom :</label>
                 <input type="text" id="prenom" name="prenom" value={form.prenom} onChange={handleChange} />
-              </div>
-              <div className="form-group">
-                <label htmlFor="email">Email :</label>
-                <input type="email" id="email" name="email" value={form.email} onChange={handleChange} />
-              </div>
-              <div className="form-group">
-                <label htmlFor="role">Rôle :</label>
-                <select id="role" name="role" value={form.role} onChange={handleChange}>
-                  <option value="Alternant">Alternant</option>
-                  <option value="Suiveur">Suiveur</option>
-                  <option value="Tuteur">Tuteur</option>
-                  <option value="Responsable pédagogique">Responsable pédagogique</option>
-                  <option value="Responsable relations entreprises (Cre)">Responsable relations entreprises (Cre)</option>
-                  <option value="Admin / Directeur">Admin / Directeur</option>
-                </select>
-              </div>
-              <div className="form-group">
-                <label htmlFor="tags">Tags (séparés par des virgules) :</label>
-                <input type="text" id="tags" name="tags" value={form.tags} onChange={handleChange} />
-              </div>
-              <button type="submit">Créer Compte</button>
-            </form>
+                </div>
+                <div className="form-group">
+                  <label htmlFor="email">Email :</label>
+                  <input type="email" id="email" name="email" value={form.email} onChange={handleChange} />
+                </div>
+                <div className="form-group">
+                  <label htmlFor="role">Rôle :</label>
+                  <select id="role" name="role" value={form.role} onChange={handleChange}>
+                    <option value="Alternant">Alternant</option>
+                    <option value="Suiveur">Suiveur</option>
+                    <option value="Tuteur">Tuteur</option>
+                    <option value="Responsable pédagogique">Responsable pédagogique</option>
+                    <option value="Responsable relations entreprises (Cre)">Responsable relations entreprises (Cre)</option>
+                    <option value="Admin / Directeur">Admin / Directeur</option>
+                  </select>
+                </div>
+                <div className="form-group">
+                  <label htmlFor="tags">Tags (séparés par des virgules) :</label>
+                  <input type="text" id="tags" name="tags" value={form.tags} onChange={handleChange} />
+                </div>
+                <button type="submit">Créer Compte</button>
+              </form>
+            </div>
           </div>
-        </div>
-      )}
-
-      {isBatchModalOpen && (
-        <div className="modal">
-          <div className="modal-content">
-            <span className="close-button" onClick={() => setIsBatchModalOpen(false)}>&times;</span>
-            <h2>Formulaire de Création de Comptes en Lot par Admin</h2>
-            <form onSubmit={handleBatchSubmit}>
-              <div className="form-group">
-                <label htmlFor="nom">Noms et Prénoms :</label>
-                <table className="batch-table">
-                  <thead>
-                    <tr>
-                      <th>Nom</th>
-                      <th>Prénom</th>
-                      <th>Email</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {batchUsers.map((user, index) => (
-                      <tr key={index}>
-                        <td>
-                          <input
-                            type="text"
-                            value={user.nom}
-                            onChange={(e) => handleBatchUserChange(index, 'nom', e.target.value)}
-                          />
-                        </td>
-                        <td>
-                          <input
-                            type="text"
-                            value={user.prenom}
-                            onChange={(e) => handleBatchUserChange(index, 'prenom', e.target.value)}
-                          />
-                        </td>
-                        <td>
-                          <input
-                            type="email"
-                            value={user.email}
-                            onChange={(e) => handleBatchUserChange(index, 'email', e.target.value)}
-                          />
-                        </td>
+        )}
+  
+        {isBatchModalOpen && (
+          <div className="modal">
+            <div className="modal-content">
+              <span className="close-button" onClick={() => setIsBatchModalOpen(false)}>&times;</span>
+              <h2>Formulaire de Création de Comptes en Lot par Admin</h2>
+              <form onSubmit={handleBatchSubmit}>
+                <div className="form-group">
+                  <label htmlFor="nom">Noms et Prénoms :</label>
+                  <table className="batch-table">
+                    <thead>
+                      <tr>
+                        <th>Nom</th>
+                        <th>Prénom</th>
+                        <th>Email</th>
                       </tr>
-                    ))}
-                  </tbody>
-                </table>
-                <button type="button" onClick={handleAddBatchUser}>Ajouter une ligne</button>
-                <input type="file" accept=".xlsx, .xls" onChange={handleFileUpload} />
-                <button type="button" onClick={handleDownloadTemplate} className="template-button">
-                  Télécharger le template
-                </button>
-              </div>
-              <div className="form-group">
-                <label htmlFor="role">Rôle :</label>
-                <select id="role" name="role" value={form.role} onChange={handleChange}>
-                  <option value="Alternant">Alternant</option>
-                  <option value="Suiveur">Suiveur</option>
-                  <option value="Tuteur">Tuteur</option>
-                  <option value="Responsable pédagogique">Responsable pédagogique</option>
-                  <option value="Responsable relations entreprises (Cre)">Responsable relations entreprises (Cre)</option>
-                  <option value="Admin / Directeur">Admin / Directeur</option>
-                </select>
-              </div>
-              <div className="form-group">
-                <label htmlFor="tags">Tags (séparés par des virgules) :</label>
-                <input type="text" id="tags" name="tags" value={form.tags} onChange={handleChange} />
-              </div>
-              <button type="submit">Créer Comptes</button>
-            </form>
+                    </thead>
+                    <tbody>
+                      {batchUsers.map((user, index) => (
+                        <tr key={index}>
+                          <td>
+                            <input
+                              type="text"
+                              value={user.nom}
+                              onChange={(e) => handleBatchUserChange(index, 'nom', e.target.value)}
+                            />
+                          </td>
+                          <td>
+                            <input
+                              type="text"
+                              value={user.prenom}
+                              onChange={(e) => handleBatchUserChange(index, 'prenom', e.target.value)}
+                            />
+                          </td>
+                          <td>
+                            <input
+                              type="email"
+                              value={user.email}
+                              onChange={(e) => handleBatchUserChange(index, 'email', e.target.value)}
+                            />
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                  <button type="button" onClick={handleAddBatchUser}>Ajouter une ligne</button>
+                  <input type="file" accept=".xlsx, .xls" onChange={handleFileUpload} />
+                  <button type="button" onClick={handleDownloadTemplate} className="template-button">
+                    Télécharger le template
+                  </button>
+                </div>
+                <div className="form-group">
+                  <label htmlFor="role">Rôle :</label>
+                  <select id="role" name="role" value={form.role} onChange={handleChange}>
+                    <option value="Alternant">Alternant</option>
+                    <option value="Suiveur">Suiveur</option>
+                    <option value="Tuteur">Tuteur</option>
+                    <option value="Responsable pédagogique">Responsable pédagogique</option>
+                    <option value="Responsable relations entreprises (Cre)">Responsable relations entreprises (Cre)</option>
+                    <option value="Admin / Directeur">Admin / Directeur</option>
+                  </select>
+                </div>
+                <div className="form-group">
+                  <label htmlFor="tags">Tags (séparés par des virgules) :</label>
+                  <input type="text" id="tags" name="tags" value={form.tags} onChange={handleChange} />
+                </div>
+                <button type="submit">Créer Comptes</button>
+              </form>
+            </div>
           </div>
-        </div>
-      )}
-
-      {renderTableByRole('Alternant')}
-      {renderTableByRole('Suiveur')}
-      {renderTableByRole('Tuteur')}
-      {renderTableByRole('Responsable pédagogique')}
-      {renderTableByRole('Responsable relations entreprises (Cre)')}
-      {renderTableByRole('Admin / Directeur')}
-    </div>
-  );
-};
-
-export default GestionComptesScreen;
+        )}
+  
+        {renderTableByRole('Alternant')}
+        {renderTableByRole('Suiveur')}
+        {renderTableByRole('Tuteur')}
+        {renderTableByRole('Responsable pédagogique')}
+        {renderTableByRole('Responsable relations entreprises (Cre)')}
+        {renderTableByRole('Admin / Directeur')}
+      </div>
+    );
+  };
+  
+  export default GestionComptesSuiveursScreen;
+  

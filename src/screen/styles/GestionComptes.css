@@ -107,6 +107,10 @@ button:hover {
   color: #218838;
 }
 
+.edit-mode-button.active {
+  color: #ffc107;
+}
+
 .modal {
   position: fixed;
   top: 0;
@@ -159,10 +163,31 @@ button:hover {
   background-color: #d4d4d4;
 }
 
+.role-header {
+  background-color: #ececec;
+  cursor: pointer;
+  font-weight: bold;
+  text-align: left;
+  padding: 8px;
+  margin-top: 20px;
+  border-radius: 4px;
+}
+
+.role-header:hover {
+  background-color: #d4d4d4;
+}
+
 .header-buttons {
   display: flex;
   justify-content: flex-end;
   margin-bottom: 20px;
+  gap: 20px; /* Espace plus grand entre les boutons */
+}
+
+.header-buttons .icon-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .dropdown {
@@ -197,31 +222,4 @@ button:hover {
 
 .dropdown:hover .dropdown-content {
   display: block;
-}
-
-.icon-button {
-  background-color: transparent;
-  border: none;
-  cursor: pointer;
-  font-size: 24px;
-  margin-left: 10px;
-}
-
-.icon-button:hover {
-  color: #365f9e;
-}
-
-/* Batch table styles */
-.batch-table {
-  width: 100%;
-  border-collapse: collapse;
-  margin-top: 20px;
-  max-height: 40vh; /* Limite la hauteur pour permettre le défilement */
-  overflow-y: auto; /* Ajoute une barre de défilement si nécessaire */
-}
-
-.batch-table th, .batch-table td {
-  border: 1px solid #ddd;
-  padding: 8px;
-  text-align: center;
 }
