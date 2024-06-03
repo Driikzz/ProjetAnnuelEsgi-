@@ -7,7 +7,7 @@ import PriseRdvScreen from './screen/PriseRdvScreen';
 import PriseRdvMiParcoursScreen from './screen/PriseRdvMiParcoursScreen';
 import RelancesScreen from './screen/RelancesScreen';
 import BilanScreen from './screen/BilanScreen';
-import GestionComptes from './screen/GestionComptes';
+import GestionComptesScreen from './screen/GestionComptesScreen';
 import AlertesGeneralesScreen from './screen/AlertesGeneralesScreen';
 import SuiviEntretiensScreen from './screen/SuiviEntretiensScreen'; // Importer la nouvelle page
 
@@ -81,7 +81,7 @@ function App() {
         <Route path='/rdv-mi-parcours' element={<PriseRdvMiParcoursScreen />} />
         <Route path='/relances' element={<RelancesScreen />} />
         <Route path='/bilan' element={<BilanScreen />} />
-        <Route path='/gestion-comptes' element={<GestionComptes />} />
+        <Route path='/gestion-comptes' element={<GestionComptesScreen />} />
         <Route path='/alertes' element={<AlertesGeneralesScreen />} />
         <Route path='/suivi-entretiens' element={<SuiviEntretiensScreen />} /> {/* Nouvelle page */}
       </Routes>
