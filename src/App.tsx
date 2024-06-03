@@ -13,6 +13,7 @@ import SuiviEntretiensScreen from './screen/SuiviEntretiensScreen'; // Importer 
 
 import logo from './assets/img/logoSU.png';
 import userImage from './assets/img/userPicture.png';
+import './App.css'; // Assurez-vous d'importer le fichier CSS global
 
 function App() {
   return (
@@ -29,10 +30,46 @@ function App() {
           </div>
         </div>
         <div className='separator'></div>
-        <div className='navbar-item-container'>
-          <Link to="/home" className='navbar-item-container'>
-            <div className='navbar-item-icon'><p>Icon</p></div>
-            <div className='navabar-item-title'><p>Home</p></div>
+        <div className='navbar-links'>
+          <Link to="/home" className='navbar-item'>
+            <div className='navbar-item-icon'><p>🏠</p></div>
+            <div className='navbar-item-title'><p>Home</p></div>
+          </Link>
+          <Link to="/register" className='navbar-item'>
+            <div className='navbar-item-icon'><p>📝</p></div>
+            <div className='navbar-item-title'><p>Register</p></div>
+          </Link>
+          <Link to="/login" className='navbar-item'>
+            <div className='navbar-item-icon'><p>🔑</p></div>
+            <div className='navbar-item-title'><p>Login</p></div>
+          </Link>
+          <Link to="/rdv" className='navbar-item'>
+            <div className='navbar-item-icon'><p>📅</p></div>
+            <div className='navbar-item-title'><p>Prise de RDV</p></div>
+          </Link>
+          <Link to="/rdv-mi-parcours" className='navbar-item'>
+            <div className='navbar-item-icon'><p>📅</p></div>
+            <div className='navbar-item-title'><p>RDV Mi-Parcours</p></div>
+          </Link>
+          <Link to="/relances" className='navbar-item'>
+            <div className='navbar-item-icon'><p>🔄</p></div>
+            <div className='navbar-item-title'><p>Relances</p></div>
+          </Link>
+          <Link to="/bilan" className='navbar-item'>
+            <div className='navbar-item-icon'><p>📊</p></div>
+            <div className='navbar-item-title'><p>Bilan</p></div>
+          </Link>
+          <Link to="/gestion-comptes-suiveurs" className='navbar-item'>
+            <div className='navbar-item-icon'><p>👥</p></div>
+            <div className='navbar-item-title'><p>Gestion Comptes Suiveurs</p></div>
+          </Link>
+          <Link to="/alertes" className='navbar-item'>
+            <div className='navbar-item-icon'><p>⚠️</p></div>
+            <div className='navbar-item-title'><p>Alertes Générales</p></div>
+          </Link>
+          <Link to="/suivi-entretiens" className='navbar-item'>
+            <div className='navbar-item-icon'><p>📋</p></div>
+            <div className='navbar-item-title'><p>Suivi des Entretiens</p></div>
           </Link>
         </div>
       </div>
