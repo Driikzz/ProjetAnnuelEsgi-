@@ -7,7 +7,7 @@ import PriseRdvScreen from './screen/PriseRdvScreen';
 import PriseRdvMiParcoursScreen from './screen/PriseRdvMiParcoursScreen';
 import RelancesScreen from './screen/RelancesScreen';
 import BilanScreen from './screen/BilanScreen';
-import GestionComptesSuiveursScreen from './screen/GestionComptesSuiveursScreen';
+import GestionComptes from './screen/GestionComptes';
 import AlertesGeneralesScreen from './screen/AlertesGeneralesScreen';
 import SuiviEntretiensScreen from './screen/SuiviEntretiensScreen'; // Importer la nouvelle page
 
@@ -59,9 +59,9 @@ function App() {
             <div className='navbar-item-icon'><p>📊</p></div>
             <div className='navbar-item-title'><p>Bilan</p></div>
           </Link>
-          <Link to="/gestion-comptes-suiveurs" className='navbar-item'>
+          <Link to="/gestion-comptes" className='navbar-item'>
             <div className='navbar-item-icon'><p>👥</p></div>
-            <div className='navbar-item-title'><p>Gestion Comptes Suiveurs</p></div>
+            <div className='navbar-item-title'><p>Gestion Comptes</p></div>
           </Link>
           <Link to="/alertes" className='navbar-item'>
             <div className='navbar-item-icon'><p>⚠️</p></div>
@@ -81,7 +81,7 @@ function App() {
         <Route path='/rdv-mi-parcours' element={<PriseRdvMiParcoursScreen />} />
         <Route path='/relances' element={<RelancesScreen />} />
         <Route path='/bilan' element={<BilanScreen />} />
-        <Route path='/gestion-comptes-suiveurs' element={<GestionComptesSuiveursScreen />} />
+        <Route path='/gestion-comptes' element={<GestionComptes />} />
         <Route path='/alertes' element={<AlertesGeneralesScreen />} />
         <Route path='/suivi-entretiens' element={<SuiviEntretiensScreen />} /> {/* Nouvelle page */}
       </Routes>

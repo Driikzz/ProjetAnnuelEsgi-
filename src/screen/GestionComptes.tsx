@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import './styles/GestionComptesSuiveursScreen.css';
+import './styles/GestionComptes.css';
 import { FaTrash } from 'react-icons/fa';
 
 interface Suiveur {
@@ -11,7 +11,7 @@ interface Suiveur {
   tags: string[];
 }
 
-const GestionComptesSuiveursScreen: React.FC = () => {
+const GestionComptes: React.FC = () => {
   const [form, setForm] = useState({
     nom: '',
     prenom: '',
@@ -21,8 +21,8 @@ const GestionComptesSuiveursScreen: React.FC = () => {
   });
 
   const [suiveurs, setSuiveurs] = useState<Suiveur[]>([
-    { id: 1, nom: 'Suiveur', prenom: '1', email: 'suiveur1@example.com', role: 'Suiveur', tags: ['Tag1'] },
-    { id: 2, nom: 'Suiveur', prenom: '2', email: 'suiveur2@example.com', role: 'Suiveur', tags: ['Tag2'] },
+    { id: 1, nom: 'Suiveur', prenom: '1', email: 'suiveur1@example.com', role: 'Suiveur', tags: ['B1'] },
+    { id: 2, nom: 'Suiveur', prenom: '2', email: 'suiveur2@example.com', role: 'Suiveur', tags: ['B2'] },
     // Ajoutez plus de suiveurs ici si nécessaire
   ]);
 
@@ -173,4 +173,4 @@ const GestionComptesSuiveursScreen: React.FC = () => {
   );
 };
 
-export default GestionComptesSuiveursScreen;
+export default GestionComptes;
