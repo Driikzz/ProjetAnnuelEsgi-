@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import './styles/GestionComptes.css';
-import { FaTrash } from 'react-icons/fa';
+import { FaTrash, FaPlus, FaEdit } from 'react-icons/fa';
 
 interface Suiveur {
   id: number;
@@ -11,7 +11,7 @@ interface Suiveur {
   tags: string[];
 }
 
-const GestionComptes: React.FC = () => {
+const GestionComptesSuiveursScreen: React.FC = () => {
   const [form, setForm] = useState({
     nom: '',
     prenom: '',
@@ -21,20 +21,32 @@ const GestionComptes: React.FC = () => {
   });
 
   const [suiveurs, setSuiveurs] = useState<Suiveur[]>([
-    { id: 1, nom: 'Suiveur', prenom: '1', email: 'suiveur1@example.com', role: 'Suiveur', tags: ['B1'] },
-    { id: 2, nom: 'Suiveur', prenom: '2', email: 'suiveur2@example.com', role: 'Suiveur', tags: ['B2'] },
+    { id: 1, nom: 'Suiveur', prenom: '1', email: 'suiveur1@example.com', role: 'Suiveur', tags: ['Tag1'] },
+    { id: 2, nom: 'Suiveur', prenom: '2', email: 'suiveur2@example.com', role: 'Suiveur', tags: ['Tag2'] },
     // Ajoutez plus de suiveurs ici si nécessaire
   ]);
 
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isBatchModalOpen, setIsBatchModalOpen] = useState(false);
   const [editMode, setEditMode] = useState(false);
   const [expandedTags, setExpandedTags] = useState<string[]>([]);
+  const [batchUsers, setBatchUsers] = useState([{ nom: '', prenom: '', email: '' }]);
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     setForm({
       ...form,
       [e.target.name]: e.target.value,
     });
+  };
+
+  const handleBatchUserChange = (index: number, field: string, value: string) => {
+    const newBatchUsers = [...batchUsers];
+    newBatchUsers[index] = { ...newBatchUsers[index], [field]: value };
+    setBatchUsers(newBatchUsers);
+  };
+
+  const handleAddBatchUser = () => {
+    setBatchUsers([...batchUsers, { nom: '', prenom: '', email: '' }]);
   };
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -52,125 +64,212 @@ const GestionComptes: React.FC = () => {
     setIsModalOpen(false);
   };
 
-  const handleDelete = (id: number) => {
-    const updatedSuiveurs = suiveurs.filter((suiveur) => suiveur.id !== id);
-    setSuiveurs(updatedSuiveurs);
+  const handleBatchSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    const newSuiveurs = batchUsers.map((user, index) => ({
+      id: suiveurs.length + index + 1,
+      nom: user.nom,
+      prenom: user.prenom,
+      email: user.email,
+      role: form.role,
+      tags: form.tags.split(',').map(tag => tag.trim()),
+    }));
+    setSuiveurs([...suiveurs, ...newSuiveurs]);
+    setBatchUsers([{ nom: '', prenom: '', email: '' }]);
+    setIsBatchModalOpen(false);
   };
+const handleDelete = (id: number) => {
+  const updatedSuiveurs = suiveurs.filter((suiveur) => suiveur.id !== id);
+  setSuiveurs(updatedSuiveurs);
+};
 
-  const handleToggleTag = (tag: string) => {
-    setExpandedTags((prev) =>
-      prev.includes(tag) ? prev.filter((t) => t !== tag) : [...prev, tag]
-    );
-  };
+const handleToggleTag = (tag: string) => {
+  setExpandedTags((prev) =>
+    prev.includes(tag) ? prev.filter((t) => t !== tag) : [...prev, tag]
+  );
+};
 
-  const renderTableByRole = (role: string) => {
-    const suiveursByRole = suiveurs.filter(suiveur => suiveur.role === role);
+const renderTableByRole = (role: string) => {
+  const suiveursByRole = suiveurs.filter(suiveur => suiveur.role === role);
 
-    const tags = Array.from(new Set(suiveursByRole.flatMap((suiveur) => suiveur.tags)));
-
-    return (
-      <div className="suiveurs-list" key={role}>
-        <h2>Liste des {role}s</h2>
-        <table>
-          <thead>
-            <tr>
-              <th>Tag</th>
-              <th>Nom</th>
-              <th>Prénom</th>
-              <th>Email</th>
-              {editMode && <th>Actions</th>}
-            </tr>
-          </thead>
-          <tbody>
-            {tags.map((tag) => (
-              <React.Fragment key={tag}>
-                <tr className="tag-header" onClick={() => handleToggleTag(tag)}>
-                  <td colSpan={editMode ? 5 : 4}>
-                    {tag} {expandedTags.includes(tag) ? '-' : '+'}
-                  </td>
-                </tr>
-                {expandedTags.includes(tag) && suiveursByRole
-                  .filter((suiveur) => suiveur.tags.includes(tag))
-                  .sort((a, b) => a.nom.localeCompare(b.nom))
-                  .map((suiveur) => (
-                    <tr key={suiveur.id}>
-                      <td>{tag}</td>
-                      <td>{suiveur.nom}</td>
-                      <td>{suiveur.prenom}</td>
-                      <td>{suiveur.email}</td>
-                      {editMode && (
-                        <td>
-                          <button onClick={() => handleDelete(suiveur.id)} className="delete-button">
-                            <FaTrash />
-                          </button>
-                        </td>
-                      )}
-                    </tr>
-                  ))}
-              </React.Fragment>
-            ))}
-          </tbody>
-        </table>
-      </div>
-    );
-  };
+  const tags = Array.from(new Set(suiveursByRole.flatMap((suiveur) => suiveur.tags)));
 
   return (
-    <div className="container">
-      <h1>Gestion des Comptes Suiveurs Externes</h1>
-
-      <button className="open-modal-button" onClick={() => setIsModalOpen(true)}>Ajouter un utilisateur</button>
-      <button className="edit-mode-button" onClick={() => setEditMode(!editMode)}>
-        {editMode ? 'Terminer les modifications' : 'Modifier'}
-      </button>
-
-      {isModalOpen && (
-        <div className="modal">
-          <div className="modal-content">
-            <span className="close-button" onClick={() => setIsModalOpen(false)}>&times;</span>
-            <h2>Formulaire de Création de Compte par Admin</h2>
-            <form onSubmit={handleSubmit}>
-              <div className="form-group">
-                <label htmlFor="nom">Nom :</label>
-                <input type="text" id="nom" name="nom" value={form.nom} onChange={handleChange} />
-              </div>
-              <div className="form-group">
-                <label htmlFor="prenom">Prénom :</label>
-                <input type="text" id="prenom" name="prenom" value={form.prenom} onChange={handleChange} />
-              </div>
-              <div className="form-group">
-                <label htmlFor="email">Email :</label>
-                <input type="email" id="email" name="email" value={form.email} onChange={handleChange} />
-              </div>
-              <div className="form-group">
-                <label htmlFor="role">Rôle :</label>
-                <select id="role" name="role" value={form.role} onChange={handleChange}>
-                  <option value="Alternant">Alternant</option>
-                  <option value="Suiveur">Suiveur</option>
-                  <option value="Tuteur">Tuteur</option>
-                  <option value="Responsable pédagogique">Responsable pédagogique</option>
-                  <option value="Responsable relations entreprises (Cre)">Responsable relations entreprises (Cre)</option>
-                  <option value="Admin / Directeur">Admin / Directeur</option>
-                </select>
-              </div>
-              <div className="form-group">
-                <label htmlFor="tags">Tags (séparés par des virgules) :</label>
-                <input type="text" id="tags" name="tags" value={form.tags} onChange={handleChange} />
-              </div>
-              <button type="submit">Créer Compte</button>
-            </form>
-          </div>
-        </div>
-      )}
-
-      {renderTableByRole('Alternant')}
-      {renderTableByRole('Suiveur')}
-      {renderTableByRole('Tuteur')}
-      {renderTableByRole('Responsable pédagogique')}
-      {renderTableByRole('Responsable relations entreprises (Cre)')}
-      {renderTableByRole('Admin / Directeur')}
+    <div className="suiveurs-list" key={role}>
+      <h2>Liste des {role}s</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>Tag</th>
+            <th>Nom</th>
+            <th>Prénom</th>
+            <th>Email</th>
+            {editMode && <th>Actions</th>}
+          </tr>
+        </thead>
+        <tbody>
+          {tags.map((tag) => (
+            <React.Fragment key={tag}>
+              <tr className="tag-header" onClick={() => handleToggleTag(tag)}>
+                <td colSpan={editMode ? 5 : 4}>
+                  {tag} {expandedTags.includes(tag) ? '-' : '+'}
+                </td>
+              </tr>
+              {expandedTags.includes(tag) && suiveursByRole
+                .filter((suiveur) => suiveur.tags.includes(tag))
+                .sort((a, b) => a.nom.localeCompare(b.nom))
+                .map((suiveur) => (
+                  <tr key={suiveur.id}>
+                    <td>{tag}</td>
+                    <td>{suiveur.nom}</td>
+                    <td>{suiveur.prenom}</td>
+                    <td>{suiveur.email}</td>
+                    {editMode && (
+                      <td>
+                        <button onClick={() => handleDelete(suiveur.id)} className="delete-button">
+                          <FaTrash />
+                        </button>
+                      </td>
+                    )}
+                  </tr>
+                ))}
+            </React.Fragment>
+          ))}
+        </tbody>
+      </table>
     </div>
   );
 };
 
-export default GestionComptes;
+return (
+  <div className="container">
+    <h1>Gestion des Comptes Suiveurs Externes</h1>
+
+    <div className="header-buttons">
+      <div className="dropdown">
+        <FaPlus className="icon-button" />
+        <div className="dropdown-content">
+          <button onClick={() => setIsModalOpen(true)}>Ajouter un utilisateur</button>
+          <button onClick={() => setIsBatchModalOpen(true)}>Ajouter en lot</button>
+        </div>
+      </div>
+      <FaEdit className="icon-button" onClick={() => setEditMode(!editMode)} />
+    </div>
+
+    {isModalOpen && (
+      <div className="modal">
+        <div className="modal-content">
+          <span className="close-button" onClick={() => setIsModalOpen(false)}>&times;</span>
+          <h2>Formulaire de Création de Compte par Admin</h2>
+          <form onSubmit={handleSubmit}>
+            <div className="form-group">
+              <label htmlFor="nom">Nom :</label>
+              <input type="text" id="nom" name="nom" value={form.nom} onChange={handleChange} />
+            </div>
+            <div className="form-group">
+              <label htmlFor="prenom">Prénom :</label>
+              <input type="text" id="prenom" name="prenom" value={form.prenom} onChange={handleChange} />
+            </div>
+            <div className="form-group">
+              <label htmlFor="email">Email :</label>
+              <input type="email" id="email" name="email" value={form.email} onChange={handleChange} />
+            </div>
+            <div className="form-group">
+              <label htmlFor="role">Rôle :</label>
+              <select id="role" name="role" value={form.role} onChange={handleChange}>
+                <option value="Alternant">Alternant</option>
+                <option value="Suiveur">Suiveur</option>
+                <option value="Tuteur">Tuteur</option>
+                <option value="Responsable pédagogique">Responsable pédagogique</option>
+                <option value="Responsable relations entreprises (Cre)">Responsable relations entreprises (Cre)</option>
+                <option value="Admin / Directeur">Admin / Directeur</option>
+              </select>
+            </div>
+            <div className="form-group">
+              <label htmlFor="tags">Tags (séparés par des virgules) :</label>
+              <input type="text" id="tags" name="tags" value={form.tags} onChange={handleChange} />
+            </div>
+            <button type="submit">Créer Compte</button>
+          </form>
+        </div>
+      </div>
+    )}
+
+    {isBatchModalOpen && (
+      <div className="modal">
+        <div className="modal-content">
+          <span className="close-button" onClick={() => setIsBatchModalOpen(false)}>&times;</span>
+          <h2>Formulaire de Création de Comptes en Lot par Admin</h2>
+          <form onSubmit={handleBatchSubmit}>
+            <div className="form-group">
+<label htmlFor="nom">Noms et Prénoms :</label>
+<table className="batch-table">
+  <thead>
+    <tr>
+      <th>Nom</th>
+      <th>Prénom</th>
+      <th>Email</th>
+    </tr>
+  </thead>
+  <tbody>
+    {batchUsers.map((user, index) => (
+      <tr key={index}>
+        <td>
+          <input
+            type="text"
+            value={user.nom}
+            onChange={(e) => handleBatchUserChange(index, 'nom', e.target.value)}
+          />
+        </td>
+        <td>
+          <input
+            type="text"
+            value={user.prenom}
+            onChange={(e) => handleBatchUserChange(index, 'prenom', e.target.value)}
+          />
+        </td>
+        <td>
+          <input
+            type="email"
+            value={user.email}
+            onChange={(e) => handleBatchUserChange(index, 'email', e.target.value)}
+          />
+        </td>
+      </tr>
+    ))}
+  </tbody>
+</table>
+<button type="button" onClick={handleAddBatchUser}>Ajouter une ligne</button>
+</div>
+<div className="form-group">
+<label htmlFor="role">Rôle :</label>
+<select id="role" name="role" value={form.role} onChange={handleChange}>
+  <option value="Alternant">Alternant</option>
+  <option value="Suiveur">Suiveur</option>
+  <option value="Tuteur">Tuteur</option>
+  <option value="Responsable pédagogique">Responsable pédagogique</option>
+  <option value="Responsable relations entreprises (Cre)">Responsable relations entreprises (Cre)</option>
+  <option value="Admin / Directeur">Admin / Directeur</option>
+</select>
+</div>
+<div className="form-group">
+<label htmlFor="tags">Tags (séparés par des virgules) :</label>
+<input type="text" id="tags" name="tags" value={form.tags} onChange={handleChange} />
+</div>
+<button type="submit">Créer Comptes</button>
+</form>
+</div>
+</div>
+)}
+
+{renderTableByRole('Alternant')}
+{renderTableByRole('Suiveur')}
+{renderTableByRole('Tuteur')}
+{renderTableByRole('Responsable pédagogique')}
+{renderTableByRole('Responsable relations entreprises (Cre)')}
+{renderTableByRole('Admin / Directeur')}
+</div>
+);
+};
+
+export default GestionComptesSuiveursScreen;
