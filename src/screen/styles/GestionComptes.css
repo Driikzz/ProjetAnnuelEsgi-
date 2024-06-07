@@ -181,13 +181,7 @@ button:hover {
   display: flex;
   justify-content: flex-end;
   margin-bottom: 20px;
-  gap: 20px; /* Espace plus grand entre les boutons */
-}
-
-.header-buttons .icon-button {
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  gap: 10px;
 }
 
 .dropdown {
@@ -222,4 +216,44 @@ button:hover {
 
 .dropdown:hover .dropdown-content {
   display: block;
+}
+
+.icon-button {
+  background-color: transparent;
+  border: none;
+  cursor: pointer;
+  font-size: 24px;
+  color: #437bbb;
+}
+
+.icon-button:hover {
+  color: #365f9e;
+}
+
+.all-users-list {
+  margin-top: 20px;
+}
+
+.search-bar {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  margin-bottom: 20px;
+}
+
+.batch-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 10px;
+}
+
+.batch-table th, .batch-table td {
+  border: 1px solid #ddd;
+  padding: 8px;
+  text-align: center;
+}
+
+.batch-table th {
+  background-color: #f2f2f2;
 }
