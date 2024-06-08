@@ -32,7 +32,7 @@ const GestionComptesSuiveursScreen: React.FC = () => {
   const [editMode, setEditMode] = useState(false);
   const [expandedTags, setExpandedTags] = useState<string[]>([]);
   const [expandedRoles, setExpandedRoles] = useState<string[]>([]);
-  const [batchUsers, setBatchUsers] = useState([{ nom: '', prenom: '', email: '' }]);
+  const [batchUsers, setBatchUsers] = useState([{ nom: '', prenom: '', email: '', tags: '' }]);
   const [showAllUsers, setShowAllUsers] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [editUser, setEditUser] = useState<Suiveur | null>(null);
@@ -51,7 +51,7 @@ const GestionComptesSuiveursScreen: React.FC = () => {
   };
 
   const handleAddBatchUser = () => {
-    setBatchUsers([...batchUsers, { nom: '', prenom: '', email: '' }]);
+    setBatchUsers([...batchUsers, { nom: '', prenom: '', email: '', tags: '' }]);
   };
 
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -71,6 +71,7 @@ const GestionComptesSuiveursScreen: React.FC = () => {
           nom: String(row['Nom'] || ''),
           prenom: String(row['Prénom'] || ''),
           email: String(row['Email'] || ''),
+          tags: String(row['Tags'] || ''),
         }));
 
         setBatchUsers(newBatchUsers);
@@ -82,7 +83,7 @@ const GestionComptesSuiveursScreen: React.FC = () => {
 
   const handleDownloadTemplate = () => {
     const wb = XLSX.utils.book_new();
-    const ws = XLSX.utils.json_to_sheet([{ Nom: '', Prénom: '', Email: '' }]);
+    const ws = XLSX.utils.json_to_sheet([{ Nom: '', Prénom: '', Email: '', Tags: '' }]);
     XLSX.utils.book_append_sheet(wb, ws, 'Template');
     XLSX.writeFile(wb, 'template_utilisateurs.xlsx');
   };
@@ -110,10 +111,10 @@ const GestionComptesSuiveursScreen: React.FC = () => {
       prenom: user.prenom,
       email: user.email,
       role: form.role,
-      tags: form.tags.split(',').map(tag => tag.trim()),
+      tags: user.tags.split(',').map(tag => tag.trim()),
     }));
     setSuiveurs([...suiveurs, ...newSuiveurs]);
-    setBatchUsers([{ nom: '', prenom: '', email: '' }]);
+    setBatchUsers([{ nom: '', prenom: '', email: '', tags: '' }]);
     setIsBatchModalOpen(false);
   };
 
@@ -138,11 +139,21 @@ const GestionComptesSuiveursScreen: React.FC = () => {
     setEditUser(user);
   };
 
+  const handleEditChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
+    if (editUser) {
+      setEditUser({
+        ...editUser,
+        [e.target.name]: e.target.value,
+        tags: (e.target.name === 'tags' ? e.target.value.split(',').map(tag => tag.trim()) : editUser.tags) as string[]
+      });
+    }
+  };
+
   const handleEditSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (editUser) {
       const updatedSuiveurs = suiveurs.map((suiveur) =>
-        suiveur.id === editUser.id ? { ...editUser, tags: editUser.tags.join(', ').split(',').map(tag => tag.trim()) } : suiveur
+        suiveur.id === editUser.id ? { ...editUser } : suiveur
       );
       setSuiveurs(updatedSuiveurs);
       setEditUser(null);
@@ -189,11 +200,11 @@ const GestionComptesSuiveursScreen: React.FC = () => {
                         <td>{suiveur.email}</td>
                         {editMode && (
                           <td>
-                            <button onClick={() => handleEditUser(suiveur)} className="edit-button">
-                              <FaEdit />
-                            </button>
                             <button onClick={() => handleDelete(suiveur.id)} className="delete-button">
                               <FaTrash />
+                            </button>
+                            <button onClick={() => handleEditUser(suiveur)} className="edit-button">
+                              <FaEdit />
                             </button>
                           </td>
                         )}
@@ -221,233 +232,86 @@ const GestionComptesSuiveursScreen: React.FC = () => {
           type="text"
           placeholder="Rechercher..."
           value={searchTerm}
-          onChange={(e) =>
-            setSearchTerm(e.target.value)}
-            className="search-bar"
-          />
-          <table>
-            <thead>
-              <tr>
-                <th>Nom</th>
-                <th>Prénom</th>
-                <th>Email</th>
-                <th>Rôle</th>
-                <th>Tags</th>
-                {editMode && <th>Actions</th>}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          className="search-bar"
+        />
+        <table>
+          <thead>
+            <tr>
+              <th>Nom</th>
+              <th>Prénom</th>
+              <th>Email</th>
+              <th>Rôle</th>
+              <th>Tags</th>
+              {editMode && <th>Actions</th>}
+            </tr>
+          </thead>
+          <tbody>
+            {filteredSuiveurs.map((suiveur) => (
+              <tr key={suiveur.id}>
+                <td>{suiveur.nom}</td>
+                <td>{suiveur.prenom}</td>
+                <td>{suiveur.email}</td>
+                <td>{suiveur.role}</td>
+                <td>{suiveur.tags.join(', ')}</td>
+                {editMode && (
+                  <td>
+                    <button onClick={() => handleDelete(suiveur.id)} className="delete-button">
+                      <FaTrash />
+                    </button>
+                    <button onClick={() => handleEditUser(suiveur)} className="edit-button">
+                      <FaEdit />
+                    </button>
+                  </td>
+                )}
               </tr>
-            </thead>
-            <tbody>
-              {filteredSuiveurs.map((suiveur) => (
-                <tr key={suiveur.id}>
-                  <td>{suiveur.nom}</td>
-                  <td>{suiveur.prenom}</td>
-                  <td>{suiveur.email}</td>
-                  <td>{suiveur.role}</td>
-                  <td>{suiveur.tags.join(', ')}</td>
-                  {editMode && (
-                    <td>
-                      <button onClick={() => handleEditUser(suiveur)} className="edit-button">
-                        <FaEdit />
-                      </button>
-                      <button onClick={() => handleDelete(suiveur.id)} className="delete-button">
-                        <FaTrash />
-                      </button>
-                    </td>
-                  )}
-                </tr>
-              ))}
-            </tbody>
-          </table>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    );
+  };
+
+  return (
+    <div className={`container ${editMode ? 'edit-mode-container' : ''}`}>
+      <h1>Gestion des Comptes Suiveurs Externes</h1>
+
+      <div className="header-buttons">
+        <div className="dropdown">
+          <FaPlus className="icon-button" />
+          <div className="dropdown-content">
+            <button onClick={() => setIsModalOpen(true)}>Ajouter un utilisateur</button>
+            <button onClick={() => setIsBatchModalOpen(true)}>Ajouter en lot</button>
+          </div>
         </div>
-      );
-    };
-  
-    return (
-      <div className={`container ${editMode ? 'edit-mode-container' : ''}`}>
-        <h1>Gestion des Comptes Suiveurs Externes</h1>
-  
-        <div className="header-buttons">
-          <div className="dropdown">
-            <FaPlus className="icon-button" />
-            <div className="dropdown-content">
-              <button onClick={() => setIsModalOpen(true)}>Ajouter un utilisateur</button>
-              <button onClick={() => setIsBatchModalOpen(true)}>Ajouter en lot</button>
-            </div>
-          </div>
-          <FaEdit className={`icon-button ${editMode ? 'active' : ''}`} onClick={() => setEditMode(!editMode)} />
-          <FaDownload className="icon-button" onClick={handleDownloadTemplate} title="Télécharger le template" />
-          <button className="icon-button" onClick={() => setShowAllUsers(!showAllUsers)}>
-            <FaSearch /> {showAllUsers ? 'Vue par rôle' : 'Vue d’ensemble'}
-          </button>
-        </div>
-  
-        {isModalOpen && (
-          <div className="modal">
-            <div className="modal-content">
-              <span className="close-button" onClick={() => setIsModalOpen(false)}>&times;</span>
-              <h2>Formulaire de Création de Compte par Admin</h2>
-              <form onSubmit={handleSubmit}>
-                <div className="form-group">
-                  <label htmlFor="nom">Nom :</label>
-                  <input type="text" id="nom" name="nom" value={form.nom} onChange={handleChange} />
-                </div>
-                <div className="form-group">
-                  <label htmlFor="prenom">Prénom :</label>
-                  <input type="text" id="prenom" name="prenom" value={form.prenom} onChange={handleChange} />
-                </div>
-                <div className="form-group">
-                  <label htmlFor="email">Email :</label>
-                  <input type="email" id="email" name="email" value={form.email} onChange={handleChange} />
-                </div>
-                <div className="form-group">
-                  <label htmlFor="role">Rôle :</label>
-                  <select id="role" name="role" value={form.role} onChange={handleChange}>
-                    <option value="Alternant">Alternant</option>
-                    <option value="Suiveur">Suiveur</option>
-                    <option value="Tuteur">Tuteur</option>
-                    <option value="Responsable pédagogique">Responsable pédagogique</option>
-                    <option value="Responsable relations entreprises (Cre)">Responsable relations entreprises (Cre)</option>
-                    <option value="Admin / Directeur">Admin / Directeur</option>
-                  </select>
-                </div>
-                <div className="form-group">
-                  <label htmlFor="tags">Tags (séparés par des virgules) :</label>
-                  <input type="text" id="tags" name="tags" value={form.tags} onChange={handleChange} />
-                </div>
-                <button type="submit">Créer Compte</button>
-              </form>
-            </div>
-          </div>
-        )}
-  
-        {isBatchModalOpen && (
-          <div className="modal">
-            <div className="modal-content">
-              <span className="close-button" onClick={() => setIsBatchModalOpen(false)}>&times;</span>
-              <h2>Formulaire de Création de Comptes en Lot par Admin</h2>
-              <form onSubmit={handleBatchSubmit}>
-                <div className="form-group">
-                  <label htmlFor="nom">Noms et Prénoms :</label>
-                  <table className="batch-table">
-                    <thead>
-                      <tr>
-                        <th>Nom</th>
-                        <th>Prénom</th>
-                        <th>Email</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {batchUsers.map((user, index) => (
-                        <tr key={index}>
-                          <td>
-                            <input
-                              type="text"
-                              value={user.nom}
-                              onChange={(e) => handleBatchUserChange(index, 'nom', e.target.value)}
-                            />
-                          </td>
-                          <td>
-                            <input
-                              type="text"
-                              value={user.prenom}
-                              onChange={(e) => handleBatchUserChange(index, 'prenom', e.target.value)}
-                            />
-                          </td>
-                          <td>
-                            <input
-                              type="email"
-                              value={user.email}
-                              onChange={(e) => handleBatchUserChange(index, 'email', e.target.value)}
-                            />
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                  <button type="button" onClick={handleAddBatchUser}>Ajouter une ligne</button>
-                  <input type="file" accept=".xlsx, .xls" onChange={handleFileUpload} />
-                  <button type="button" onClick={handleDownloadTemplate} className="template-button">
-                    Télécharger le template
-                  </button>
-                </div>
-                <div className="form-group">
-                  <label htmlFor="role">Rôle :</label>
-                  <select id="role" name="role" value={form.role} onChange={handleChange}>
-                    <option value="Alternant">Alternant</option>
-                    <option value="Suiveur">Suiveur</option>
-                    <option value="Tuteur">Tuteur</option>
-                    <option value="Responsable pédagogique">Responsable pédagogique</option>
-                    <option value="Responsable relations entreprises (Cre)">Responsable relations entreprises (Cre)</option>
-                    <option value="Admin / Directeur">Admin / Directeur</option>
-                  </select>
-                </div>
-                <div className="form-group">
-                  <label htmlFor="tags">Tags (séparés par des virgules) :</label>
-                  <input type="text" id="tags" name="tags" value={form.tags} onChange={handleChange} />
-                </div>
-                <button type="submit">Créer Comptes</button>
-              </form>
-            </div>
-          </div>
-        )}
-  
-        {showAllUsers ? (
-          renderAllUsersTable()
-        ) : (
-          <>
-            {renderTableByRole('Alternant')}
-            {renderTableByRole('Suiveur')}
-            {renderTableByRole('Tuteur')}
-            {renderTableByRole('Responsable pédagogique')}
-            {renderTableByRole('Responsable relations entreprises (Cre)')}
-            {renderTableByRole('Admin / Directeur')}
-          </>
-        )}
-  
-        {editUser && (
-          <div className="modal">
-            <div className="modal-content">
-              <span className="close-button" onClick={() => setEditUser(null)}>&times;</span>
-              <h2>Modifier Utilisateur</h2>
-              <form onSubmit={handleEditSubmit}>
-                <div className="form-group">
-                  <label htmlFor="edit-nom">Nom :</label>
-                  <input
-                    type="text"
-                    id="edit-nom"
-                    name="nom"
-                    value={editUser.nom}
-                    onChange={(e) => setEditUser({ ...editUser, nom: e.target.value })}
-                  />
-                </div>
-                <div className="form-group">
-                  <label htmlFor="edit-prenom">Prénom :</label>
-                  <input
-                    type="text"
-                    id="edit-prenom"
-                    name="prenom"
-                    value={editUser.prenom}
-                    onChange={(e) => setEditUser({ ...editUser, prenom: e.target.value })}
-                  />
-                </div>
-                <div className="form-group">
-                  <label htmlFor="edit-email">Email :</label>
-                  <input
-                    type="email"
-                    id="edit-email"
-                    name="email"
-                    value={editUser.email}
-                    onChange={(e) => setEditUser({ ...editUser, email: e.target.value })}
-                  />
-                </div>
-                <div className="form-group">
-                  <label htmlFor="edit-role">Rôle :</label>
-                  <select
-                    id="edit-role"
-                    name="role"
-                  value={editUser.role}
-                  onChange={(e) => setEditUser({ ...editUser, role: e.target.value })}
-                >
+        <FaEdit className={`icon-button ${editMode ? 'active' : ''}`} onClick={() => setEditMode(!editMode)} />
+        <FaDownload className="icon-button" onClick={handleDownloadTemplate} title="Télécharger le template" />
+        <button className="icon-button" onClick={() => setShowAllUsers(!showAllUsers)}>
+          <FaSearch /> {showAllUsers ? 'Vue par rôle' : 'Vue d’ensemble'}
+        </button>
+      </div>
+
+      {isModalOpen && (
+        <div className="modal">
+          <div className="modal-content">
+            <span className="close-button" onClick={() => setIsModalOpen(false)}>&times;</span>
+            <h2>Formulaire de Création de Compte par Admin</h2>
+            <form onSubmit={handleSubmit}>
+              <div className="form-group">
+                <label htmlFor="nom">Nom :</label>
+                <input type="text" id="nom" name="nom" value={form.nom} onChange={handleChange} />
+              </div>
+              <div className="form-group">
+                <label htmlFor="prenom">Prénom :</label>
+                <input type="text" id="prenom" name="prenom" value={form.prenom} onChange={handleChange} />
+              </div>
+              <div className="form-group">
+                <label htmlFor="email">Email :</label>
+                <input type="email" id="email" name="email" value={form.email} onChange={handleChange} />
+              </div>
+              <div className="form-group">
+                <label htmlFor="role">Rôle :</label>
+                <select id="role" name="role" value={form.role} onChange={handleChange}>
                   <option value="Alternant">Alternant</option>
                   <option value="Suiveur">Suiveur</option>
                   <option value="Tuteur">Tuteur</option>
@@ -457,16 +321,143 @@ const GestionComptesSuiveursScreen: React.FC = () => {
                 </select>
               </div>
               <div className="form-group">
-                <label htmlFor="edit-tags">Tags (séparés par des virgules) :</label>
+                <label htmlFor="tags">Tags (séparés par des virgules) :</label>
+                <input type="text" id="tags" name="tags" value={form.tags} onChange={handleChange} />
+              </div>
+              <button type="submit">Créer Compte</button>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {isBatchModalOpen && (
+        <div className="modal">
+          <div className="modal-content">
+            <span className="close-button" onClick={() => setIsBatchModalOpen(false)}>&times;</span>
+            <h2>Formulaire de Création de Comptes en Lot par Admin</h2>
+            <form onSubmit={handleBatchSubmit}>
+              <div className="form-group">
+                <label htmlFor="nom">Noms et Prénoms :</label>
+                <table className="batch-table">
+                  <thead>
+                    <tr>
+                      <th>Nom</th>
+                      <th>Prénom</th>
+                      <th>Email</th>
+                      <th>Tags</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {batchUsers.map((user, index) => (
+                      <tr key={index}>
+                        <td>
+                          <input
+                            type="text"
+                            value={user.nom}
+                            onChange={(e) => handleBatchUserChange(index, 'nom', e.target.value)}
+                          />
+                        </td>
+                        <td>
+                          <input
+                            type="text"
+                            value={user.prenom}
+                            onChange={(e) => handleBatchUserChange(index, 'prenom', e.target.value)}
+                          />
+                        </td>
+                        <td>
+                          <input
+                            type="email"
+                            value={user.email}
+                            onChange={(e) => handleBatchUserChange(index, 'email', e.target.value)}
+                          />
+                        </td>
+                        <td>
+                          <input
+                            type="text"
+                            value={user.tags}
+                            onChange={(e) => handleBatchUserChange(index, 'tags', e.target.value)}
+                          />
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+                <button type="button" onClick={handleAddBatchUser}>Ajouter une ligne</button>
+                <input type="file" accept=".xlsx, .xls" onChange={handleFileUpload} />
+                <button type="button" onClick={handleDownloadTemplate} className="template-button">
+                  Télécharger le template
+                </button>
+              </div>
+              <div className="form-group">
+                <label htmlFor="role">Rôle :</label>
+                <select id="role" name="role" value={form.role} onChange={handleChange}>
+                  <option value="Alternant">Alternant</option>
+                  <option value="Suiveur">Suiveur</option>
+                  <option value="Tuteur">Tuteur</option>
+                  <option value="Responsable pédagogique">Responsable pédagogique</option>
+                  <option value="Responsable relations entreprises (Cre)">Responsable relations entreprises (Cre)</option>
+                  <option value="Admin / Directeur">Admin / Directeur</option>
+                </select>
+              </div>
+              <button type="submit">Créer Comptes</button>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {showAllUsers ? (
+        renderAllUsersTable()
+      ) : (
+        <>
+          {renderTableByRole('Alternant')}
+          {renderTableByRole('Suiveur')}
+          {renderTableByRole('Tuteur')}
+          {renderTableByRole('Responsable pédagogique')}
+          {renderTableByRole('Responsable relations entreprises (Cre)')}
+          {renderTableByRole('Admin / Directeur')}
+        </>
+      )}
+
+      {editUser && (
+        <div className="modal">
+          <div className="modal-content">
+            <span className="close-button" onClick={() => setEditUser(null)}>&times;</span>
+            <h2>Modifier l'utilisateur</h2>
+            <form onSubmit={handleEditSubmit}>
+              <div className="form-group">
+                <label htmlFor="editNom">Nom :</label>
+                <input type="text" id="editNom" name="nom" value={editUser.nom} onChange={handleEditChange} />
+              </div>
+              <div className="form-group">
+                <label htmlFor="editPrenom">Prénom :</label>
+                <input type="text" id="editPrenom" name="prenom" value={editUser.prenom} onChange={handleEditChange} />
+              </div>
+              <div className="form-group">
+                <label htmlFor="editEmail">Email :</label>
+                <input type="email" id="editEmail" name="email" value={editUser.email} onChange={handleEditChange} />
+              </div>
+              <div className="form-group">
+                <label htmlFor="editRole">Rôle :</label>
+                <select id="editRole" name="role" value={editUser.role} onChange={handleEditChange}>
+                  <option value="Alternant">Alternant</option>
+                  <option value="Suiveur">Suiveur</option>
+                  <option value="Tuteur">Tuteur</option>
+                  <option value="Responsable pédagogique">Responsable pédagogique</option>
+                  <option value="Responsable relations entreprises (Cre)">Responsable relations entreprises (Cre)</option>
+                  <option value="Admin / Directeur">Admin / Directeur</option>
+                </select>
+              </div>
+              <div className="form-group">
+                <label htmlFor="editTags">Tags (séparés par des virgules) :</label>
                 <input
                   type="text"
-                  id="edit-tags"
+                  id="editTags"
                   name="tags"
-                  value={editUser.tags.join(', ')}
-                  onChange={(e) => setEditUser({ ...editUser, tags: e.target.value.split(',').map(tag => tag.trim()) })}
+                  value={(editUser.tags as unknown) as string}
+                  onChange={handleEditChange}
                 />
               </div>
-              <button type="submit">Enregistrer les modifications</button>
+              <button type="submit">Modifier</button>
             </form>
           </div>
         </div>
