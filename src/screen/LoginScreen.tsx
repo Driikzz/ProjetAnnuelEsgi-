@@ -50,22 +50,18 @@ const LoginScreen: React.FC = () => {
         // Navigate based on user role
         switch (user.role) {
             case 'Admin / Directeur':
-                navigate('/admin-dashboard');
+                navigate('/gestion-comptes');
                 break;
             case 'Suiveur':
-                navigate('/suiveur-dashboard');
+                navigate('/rdv');
                 break;
             case 'Tuteur':
-                navigate('/tuteur-dashboard');
-                break;
             case 'Responsable pédagogique':
-                navigate('/pedagogique-dashboard');
-                break;
             case 'Responsable relations entreprises (Cre)':
-                navigate('/cre-dashboard');
+                navigate('/home');
                 break;
             default:
-                navigate('/user-dashboard');
+                navigate('/home');
                 break;
         }
     };
