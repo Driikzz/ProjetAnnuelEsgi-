@@ -1,5 +1,5 @@
 import React from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import HomePage from './screen/HomePage';
 import LoginScreen from './screen/LoginScreen';
 import PriseRdvScreen from './screen/PriseRdvScreen';
@@ -11,16 +11,23 @@ import AlertesGeneralesScreen from './screen/AlertesGeneralesScreen';
 import SuiviEntretiensScreen from './screen/SuiviEntretiensScreen';
 import { AuthProvider } from './context/AuthContext';
 import ProtectedRoute from './components/ProtectedRoute';
-import Navbar from './components/Navbar'; // Ensure Navbar is correctly imported
+import Navbar from './components/Navbar';
 
-function App() {
+const App: React.FC = () => {
   return (
     <AuthProvider>
       <Router>
         <Navbar />
         <Routes>
           <Route path="/home" element={<ProtectedRoute><HomePage /></ProtectedRoute>} />
-          <Route path='/login' element={<LoginScreen />} />
+          <Route 
+            path="/login" 
+            element={
+              <ProtectedRoute redirectTo="/home" inverse>
+                <LoginScreen />
+              </ProtectedRoute>
+            } 
+          />
           <Route
             path='/rdv'
             element={
@@ -81,6 +88,6 @@ function App() {
       </Router>
     </AuthProvider>
   );
-}
+};
 
 export default App;
