@@ -1,154 +1,198 @@
-/* AlertesGeneralesScreen.css */
 .container {
-    max-width: 1000px;
-    margin: 0 auto;
-    padding: 20px;
-    border: 1px solid #ccc;
-    border-radius: 8px;
-    background-color: #f9f9f9;
-    position: relative;
-    margin-top: 80px;
-  }
-  
-  .header {
-    text-align: center;
-    margin-bottom: 20px;
-    font-size: 24px;
-  }
-  
-  .notificationSummary {
-    position: absolute;
-    top: 20px;
-    right: 20px;
-    background-color: #007bff;
-    color: #fff;
-    padding: 10px;
-    border-radius: 8px;
-    cursor: pointer;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-  }
-  
-  .subHeader {
-    text-align: center;
-    margin-bottom: 20px;
-    font-size: 20px;
-  }
-  
-  
-  .cardContainer {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-  
-  .arrowButton {
-    background-color: #007bff;
-    color: #fff;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    padding: 10px;
-    font-size: 20px;
-    margin: 0 10px;
-  }
-  
-  .cards {
-    display: flex;
-    gap: 20px;
-    overflow: hidden;
-  }
-  
-  .card {
-    background-color: #fff;
-    border-radius: 8px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    padding: 20px;
-    width: 300px;
-    text-align: center;
-    position: relative;
-  }
-  
-  .cardHeader {
-    display: flex;
-    justify-content: space-between;
-    border-bottom: 1px solid #eee;
-    padding-bottom: 10px;
-    margin-bottom: 10px;
-  }
-  
-  .cardTitle {
-    font-size: 20px; /* Augmenté */
-    margin: 10px 0;
-    color: #333; /* Plus foncé pour plus de contraste */
-    font-weight: bold; /* Ajouté pour plus de contraste */
-  }
-  
-  .cardDescription {
-    font-size: 14px;
-    color: #777; /* Plus clair pour le contenu */
-  }
-  
-  .dismissButton {
-    background-color: #dc3545;
-    color: #fff;
-    border: none;
-    border-radius: 4px;
-    padding: 10px;
-    cursor: pointer;
-    margin-top: 10px;
-  }
-  
-  .suiviAlertes {
-    margin-top: 40px;
-  }
-  
-  .popup {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0, 0, 0, 0.5);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 20px;
-  }
-  
-  .popupContent {
-    background-color: #fff;
-    padding: 20px;
-    border-radius: 8px;
-    max-width: 600px;
-    width: 100%;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    position: relative;
-    max-height: 80%;
-    overflow-y: auto;
-  }
-  
-  .closeButton {
-    background-color: #dc3545;
-    color: #fff;
-    border: none;
-    border-radius: 4px;
-    padding: 10px;
-    cursor: pointer;
-    position: absolute;
-    top: 10px;
-    right: 10px;
-  }
-  
-  .popupList {
-    list-style-type: none;
-    padding: 0;
-  }
-  
-  .popupListItem {
-    margin-bottom: 10px;
-    padding: 10px;
-    border-bottom: 1px solid #eee;
-  }
-  
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 20px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  background-color: #f9f9f9;
+  position: relative;
+  margin-top: 80px;
+}
+
+.header {
+  text-align: center;
+  margin-bottom: 20px;
+  font-size: 24px;
+}
+
+.notificationSummary {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  background-color: #007bff;
+  color: #fff;
+  padding: 10px;
+  border-radius: 8px;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.subHeader {
+  text-align: center;
+  margin-bottom: 20px;
+  font-size: 20px;
+}
+
+.cardContainer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.arrowButton {
+  background-color: #007bff;
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  padding: 10px;
+  font-size: 20px;
+  margin: 0 10px;
+}
+
+.cards {
+  display: flex;
+  gap: 20px;
+  overflow: hidden;
+}
+
+.card {
+  background-color: #fff;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  padding: 20px;
+  width: 300px;
+  text-align: center;
+  position: relative;
+}
+
+.cardHeader {
+  display: flex;
+  justify-content: space-between;
+  border-bottom: 1px solid #eee;
+  padding-bottom: 10px;
+  margin-bottom: 10px;
+}
+
+.cardTitle {
+  font-size: 20px; /* Augmenté */
+  margin: 10px 0;
+  color: #333; /* Plus foncé pour plus de contraste */
+  font-weight: bold; /* Ajouté pour plus de contraste */
+}
+
+.cardDescription {
+  font-size: 14px;
+  color: #777; /* Plus clair pour le contenu */
+}
+
+.dismissButton {
+  background-color: #dc3545;
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  padding: 10px;
+  cursor: pointer;
+  margin-top: 10px;
+}
+
+.detailsButton {
+  background-color: #007bff;
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  padding: 10px;
+  cursor: pointer;
+  margin-top: 10px;
+  margin-right: 10px;
+}
+
+.suiviAlertes {
+  margin-top: 40px;
+}
+
+.popup {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+
+.popupContent {
+  background-color: #fff;
+  padding: 20px;
+  border-radius: 8px;
+  max-width: 600px;
+  width: 100%;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  position: relative;
+  max-height: 80%;
+  overflow-y: auto;
+}
+
+.closeButton {
+  background-color: #dc3545;
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  padding: 10px;
+  cursor: pointer;
+  position: absolute;
+  top: 10px;
+  right: 10px;
+}
+
+.popupList {
+  list-style-type: none;
+  padding: 0;
+}
+
+.popupListItem {
+  margin-bottom: 10px;
+  padding: 10px;
+  border-bottom: 1px solid #eee;
+}
+
+.detailsPopup {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 80%;
+  background: white;
+  border: 1px solid #ccc;
+  padding: 20px;
+  z-index: 1000;
+  box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+}
+
+.detailsContent {
+  display: flex;
+  flex-direction: column;
+}
+
+.detailsContent div {
+  margin-bottom: 10px;
+}
+
+.treatedAlertes {
+  margin-top: 40px;
+}
+
+.treatedContainer {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+}
+
+.treatedCard {
+  background-color: #e0e0e0;
+}
