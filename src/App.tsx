@@ -19,6 +19,7 @@ const App: React.FC = () => {
       <Router>
         <Navbar />
         <Routes>
+          <Route path="/" element={<Navigate to="/login" replace />} />
           <Route path="/home" element={<ProtectedRoute><HomePage /></ProtectedRoute>} />
           <Route 
             path="/login" 
