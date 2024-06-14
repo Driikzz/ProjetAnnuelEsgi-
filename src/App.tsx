@@ -1,6 +1,6 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
-import HomePage from './screen/HomePage';
+import HomeSuiveurPage from './screen/HomeSuiveurPage';
 import LoginScreen from './screen/LoginScreen';
 import PriseRdvScreen from './screen/PriseRdvScreen';
 import PriseRdvMiParcoursScreen from './screen/PriseRdvMiParcoursScreen';
@@ -20,11 +20,11 @@ const App: React.FC = () => {
         <Navbar />
         <Routes>
           <Route path="/" element={<Navigate to="/login" replace />} />
-          <Route path="/home" element={<ProtectedRoute><HomePage /></ProtectedRoute>} />
+          <Route path="/home-suiveur" element={<ProtectedRoute roles={['Suiveur']}><HomeSuiveurPage /></ProtectedRoute>} />
           <Route 
             path="/login" 
             element={
-              <ProtectedRoute redirectTo="/home" inverse>
+              <ProtectedRoute redirectTo="/home-suiveur" inverse>
                 <LoginScreen />
               </ProtectedRoute>
             } 

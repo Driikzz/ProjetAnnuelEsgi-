@@ -12,6 +12,16 @@ const Navbar: React.FC = () => {
     return null; // Hide the navbar when the user is not logged in
   }
 
+  const getHomeLink = () => {
+    switch (user.role) {
+      case 'Suiveur':
+        return '/home-suiveur';
+      // Add cases for other roles if needed
+      default:
+        return '/home';
+    }
+  };
+
   return (
     <div className="navbar">
       <div className='navbar-title-container'>
@@ -29,7 +39,7 @@ const Navbar: React.FC = () => {
       </div>
       <div className='separator'></div>
       <div className='navbar-links'>
-        <Link to="/home" className='navbar-item'>
+        <Link to={getHomeLink()} className='navbar-item'>
           <div className='navbar-item-icon'><p>🏠</p></div>
           <div className='navbar-item-title'><p>Home</p></div>
         </Link>
