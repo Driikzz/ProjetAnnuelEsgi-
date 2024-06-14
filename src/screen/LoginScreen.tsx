@@ -3,6 +3,7 @@ import "../App.css";
 import registerLogo from '../assets/img/logoSU.png';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import UserService from '../services/UserService';
 
 const predefinedUsers = [
     { id: 1, email: 'admin@example.com', password: 'admin123', role: 'Admin / Directeur' },
@@ -18,7 +19,28 @@ const LoginScreen: React.FC = () => {
     const [password, setPassword] = useState<string>('');
     const [error, setError] = useState<string>('');
     const navigate = useNavigate();
-    const { login } = useAuth();
+    const [token, setToken] = useState<string>('');
+
+    // stocker le token dans le local storage
+    useEffect(() => {
+        localStorage.setItem('token', token);
+        console.log('token', token);
+    }
+    , [token]);
+
+    useEffect(() => {
+        const fetchAllUser  = async () => {
+          try{
+            const response = await UserService.getUsers();
+            console.log(response);
+          } catch (error) {
+            console.error(error);
+          }
+        }  
+        fetchAllUser();
+      } , [token]);
+
+    // const { login } = useAuth();
 
     useEffect(() => {
         if (disableScroll) {
@@ -33,37 +55,52 @@ const LoginScreen: React.FC = () => {
     }, [disableScroll]);
 
     const handleLogin = () => {
-        if (!email || !password) {
-            setError('Veuillez entrer votre email et mot de passe');
-            return;
-        }
-
-        const user = predefinedUsers.find(user => user.email === email && user.password === password);
-
-        if (!user) {
+        let Email = email;
+        let Mot_De_Passe = password;
+        UserService.login({ Email, Mot_De_Passe }).then((response) => {
+            console.log(response);
+            if (response && response.status === 200) {
+                setToken(response.data?.token);
+                navigate('/gestion-comptes');
+            } else {
+                setError('Email ou mot de passe incorrect');
+            }
+        }).catch((error) => {
+            console.error(error);
             setError('Email ou mot de passe incorrect');
-            return;
-        }
+        });
 
-        login(user);
+        // if (!email || !password) {
+        //     setError('Veuillez entrer votre email et mot de passe');
+        //     return;
+        // }
+
+        // const user = predefinedUsers.find(user => user.email === email && user.password === password);
+
+        // if (!user) {
+        //     setError('Email ou mot de passe incorrect');
+        //     return;
+        // }
+
+        // login(user);
         
         // Navigate based on user role
-        switch (user.role) {
-            case 'Admin / Directeur':
-                navigate('/gestion-comptes');
-                break;
-            case 'Suiveur':
-                navigate('/rdv');
-                break;
-            case 'Tuteur':
-            case 'Responsable pédagogique':
-            case 'Responsable relations entreprises (Cre)':
-                navigate('/home');
-                break;
-            default:
-                navigate('/home');
-                break;
-        }
+        // switch (user.role) {
+        //     case 'Admin / Directeur':
+        //         navigate('/gestion-comptes');
+        //         break;
+        //     case 'Suiveur':
+        //         navigate('/rdv');
+        //         break;
+        //     case 'Tuteur':
+        //     case 'Responsable pédagogique':
+        //     case 'Responsable relations entreprises (Cre)':
+        //         navigate('/home');
+        //         break;
+        //     default:
+        //         navigate('/home');
+        //         break;
+        // }
     };
 
     return (

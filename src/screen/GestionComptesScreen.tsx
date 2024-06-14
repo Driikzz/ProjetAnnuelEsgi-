@@ -1,7 +1,8 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import './styles/GestionComptes.css';
 import { FaTrash, FaPlus, FaEdit, FaDownload, FaSearch } from 'react-icons/fa';
 import * as XLSX from 'xlsx';
+import UserService from '../services/UserService';
 
 interface Suiveur {
   id: number;
@@ -37,12 +38,20 @@ const GestionComptesSuiveursScreen: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [editUser, setEditUser] = useState<Suiveur | null>(null);
 
+  // récupérer le token du local storage
+  const [token, setToken] = useState<string>('');
+  useEffect(() => {
+    setToken(localStorage.getItem('token') || '');
+  }, []);
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     setForm({
       ...form,
       [e.target.name]: e.target.value,
     });
   };
+
+ 
 
   const handleBatchUserChange = (index: number, field: string, value: string) => {
     const newBatchUsers = [...batchUsers];
