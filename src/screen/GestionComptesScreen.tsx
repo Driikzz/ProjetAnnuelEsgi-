@@ -3,6 +3,8 @@ import './styles/GestionComptes.css';
 import { FaTrash, FaPlus, FaEdit, FaDownload, FaSearch } from 'react-icons/fa';
 import * as XLSX from 'xlsx';
 import UserService from '../services/UserService';
+import { useSelector } from 'react-redux';
+import { setUsers } from '../action/userSlice.';
 
 interface Suiveur {
   id: number;
@@ -14,6 +16,8 @@ interface Suiveur {
 }
 
 const GestionComptesSuiveursScreen: React.FC = () => {
+  const token = useSelector((state:any) => state.auth.token);
+  const [user, setUser] = useState<any>(null);
   const [form, setForm] = useState({
     nom: '',
     prenom: '',
@@ -28,6 +32,19 @@ const GestionComptesSuiveursScreen: React.FC = () => {
     // Ajoutez plus de suiveurs ici si nécessaire
   ]);
 
+  useEffect(() => {
+    const FetchUserWithToken = async () => {
+      try{
+        const response = await UserService.getUser(token);
+        console.log(" response.data", response.data);
+        setUser(response.data);
+      } catch (error) {
+        console.error(error);
+      }
+    }
+    FetchUserWithToken();
+  } , [token]);
+
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isBatchModalOpen, setIsBatchModalOpen] = useState(false);
   const [editMode, setEditMode] = useState(false);
@@ -39,10 +56,10 @@ const GestionComptesSuiveursScreen: React.FC = () => {
   const [editUser, setEditUser] = useState<Suiveur | null>(null);
 
   // récupérer le token du local storage
-  const [token, setToken] = useState<string>('');
+
   useEffect(() => {
-    setToken(localStorage.getItem('token') || '');
-  }, []);
+    console.log('token', token);
+  } , [token]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     setForm({

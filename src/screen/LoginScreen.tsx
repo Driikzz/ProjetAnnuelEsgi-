@@ -2,34 +2,26 @@ import React, { useEffect, useState } from 'react';
 import "../App.css";
 import registerLogo from '../assets/img/logoSU.png';
 import { Link, useNavigate } from 'react-router-dom';
-import { useAuth } from '../context/AuthContext';
 import UserService from '../services/UserService';
+import { useDispatch, useSelector } from 'react-redux';
+import { setTokenAction } from '../action/action';
 
 const LoginScreen: React.FC = () => {
     const [disableScroll, setDisableScroll] = useState(true);
     const [email, setEmail] = useState<string>('');
     const [password, setPassword] = useState<string>('');
     const [error, setError] = useState<string>('');
+    const [tokenUser, setTokenUsers] = useState(''); 
     const navigate = useNavigate();
-    const [token, setToken] = useState<string>('');
-    const { login } = useAuth();  // Destructure the login function from useAuth
+
+    const dispatch = useDispatch();
+
+    const token = useSelector((state:any) => state.auth.token);
 
     // Store the token in local storage
     useEffect(() => {
         localStorage.setItem('token', token);
         console.log('token', token);
-    }, [token]);
-
-    useEffect(() => {
-        const fetchAllUser = async () => {
-            try {
-                const response = await UserService.getUsers();
-                console.log(response);
-            } catch (error) {
-                console.error(error);
-            }
-        }
-        fetchAllUser();
     }, [token]);
 
     useEffect(() => {
@@ -45,15 +37,13 @@ const LoginScreen: React.FC = () => {
     }, [disableScroll]);
 
     const handleLogin = () => {
-        let Email = email;
-        let Mot_De_Passe = password;
-        UserService.login({ Email, Mot_De_Passe }).then((response) => {
+        UserService.login({ email, password }).then((response) => {
             console.log(response);
             if (response && response.status === 200) {
-                const { token, user } = response.data;
-                setToken(token);
-                login(user);  // Update user context
-                navigate('/gestion-comptes');  // Navigate based on user role
+                const token = response.data;
+                dispatch(setTokenAction(token));
+                setTokenUsers(token);
+                navigate('/gestion-comptes'); 
             } else {
                 setError('Email ou mot de passe incorrect');
             }

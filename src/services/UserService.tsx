@@ -15,15 +15,15 @@ const UserService = {
         return response.json();
     },
 
-    async getUsers() {
+    async getUser(token: string) {
         try {
             const response = await axios.get(`${URL_API}/api/users/`, {
                 headers: {
                     'Content-Type': 'application/json',
-                    Authorization: `Bearer ${localStorage.getItem('token')}`,
+                    Authorization: `Bearer ${token}`,
                 },
             });
-            console.log("token", localStorage.getItem('token'));
+            console.log(response.data);
             return response.data;
         } catch (error) {
             console.error(error);

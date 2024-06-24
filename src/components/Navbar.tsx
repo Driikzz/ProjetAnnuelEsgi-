@@ -1,12 +1,11 @@
 import React, { useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { useAuth } from '../context/AuthContext';
 import logo from '../assets/img/logoSU.png';
 import userImage from '../assets/img/userPicture.png';
 import '../screen/styles/Navbar.css'; // Ensure you have the correct path to your CSS file
 
 const Navbar: React.FC = () => {
-  const { user, logout, fetchUserData } = useAuth();
+  const { user, logout, fetchUserData } = [] as any; // Replace 'any' with the correct type
 
   useEffect(() => {
     if (!user) {
