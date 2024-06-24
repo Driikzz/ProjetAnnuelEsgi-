@@ -9,83 +9,34 @@ import BilanScreen from './screen/BilanScreen';
 import GestionComptesScreen from './screen/GestionComptesScreen';
 import AlertesGeneralesScreen from './screen/AlertesGeneralesScreen';
 import SuiviEntretiensScreen from './screen/SuiviEntretiensScreen';
-import { AuthProvider } from './context/AuthContext';
-import ProtectedRoute from './components/ProtectedRoute';
+import { AuthProvider, useAuth } from './context/AuthContext';
 import Navbar from './components/Navbar';
+
+const AppContent: React.FC = () => {
+  const { user } = useAuth(); // Get user from context
+
+  return (
+    <Routes>
+      <Route path="/" element={<Navigate to={user ? "/home-suiveur" : "/login"} replace />} />
+      <Route path="/login" element={user ? <Navigate to="/gestion-comptes" replace /> : <LoginScreen />} />
+      <Route path="/home-suiveur" element={<HomeSuiveurPage />} />
+      <Route path='/rdv' element={<PriseRdvScreen />} />
+      <Route path='/rdv-mi-parcours' element={<PriseRdvMiParcoursScreen />} />
+      <Route path='/relances' element={<RelancesScreen />} />
+      <Route path='/bilan' element={<BilanScreen />} />
+      <Route path='/gestion-comptes' element={<GestionComptesScreen />} />
+      <Route path='/alertes' element={<AlertesGeneralesScreen />} />
+      <Route path='/suivi-entretiens' element={<SuiviEntretiensScreen />} />
+    </Routes>
+  );
+};
 
 const App: React.FC = () => {
   return (
     <AuthProvider>
       <Router>
-        <Navbar />
-        <Routes>
-          <Route path="/" element={<Navigate to="/login" replace />} />
-          <Route path="/home-suiveur" element={<ProtectedRoute roles={['Suiveur']}><HomeSuiveurPage /></ProtectedRoute>} />
-          <Route 
-            path="/login" 
-            element={
-              <ProtectedRoute redirectTo="/home-suiveur" inverse>
-                <LoginScreen />
-              </ProtectedRoute>
-            } 
-          />
-          <Route
-            path='/rdv'
-            element={
-              <ProtectedRoute roles={['Suiveur', 'Admin / Directeur']}>
-                <PriseRdvScreen />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path='/rdv-mi-parcours'
-            element={
-              <ProtectedRoute roles={['Suiveur', 'Admin / Directeur']}>
-                <PriseRdvMiParcoursScreen />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path='/relances'
-            element={
-              <ProtectedRoute roles={['Suiveur', 'Admin / Directeur']}>
-                <RelancesScreen />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path='/bilan'
-            element={
-              <ProtectedRoute roles={['Suiveur', 'Admin / Directeur']}>
-                <BilanScreen />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path='/gestion-comptes'
-            element={
-              <ProtectedRoute roles={['Admin / Directeur']}>
-                <GestionComptesScreen />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path='/alertes'
-            element={
-              <ProtectedRoute roles={['Suiveur', 'Admin / Directeur']}>
-                <AlertesGeneralesScreen />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path='/suivi-entretiens'
-            element={
-              <ProtectedRoute roles={['Suiveur', 'Admin / Directeur']}>
-                <SuiviEntretiensScreen />
-              </ProtectedRoute>
-            }
-          />
-        </Routes>
+        <Navbar />  {/* This ensures the Navbar is always rendered */}
+        <AppContent />
       </Router>
     </AuthProvider>
   );
