@@ -7,6 +7,7 @@ interface ProtectedRouteProps {
   roles?: string[];
   redirectTo?: string;
   inverse?: boolean;
+  token?: string;
 }
 
 const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children, roles = [], redirectTo = "/login", inverse = false }) => {

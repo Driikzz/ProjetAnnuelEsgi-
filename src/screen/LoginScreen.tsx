@@ -20,25 +20,10 @@ const LoginScreen: React.FC = () => {
     const [error, setError] = useState<string>('');
     const navigate = useNavigate();
     const [token, setToken] = useState<string>('');
+    const [updated, setUpdated] = useState<boolean>(false);
 
     // stocker le token dans le local storage
-    useEffect(() => {
-        localStorage.setItem('token', token);
-        console.log('token', token);
-    }
-    , [token]);
 
-    useEffect(() => {
-        const fetchAllUser  = async () => {
-          try{
-            const response = await UserService.getUsers();
-            console.log(response);
-          } catch (error) {
-            console.error(error);
-          }
-        }  
-        fetchAllUser();
-      } , [token]);
 
     // const { login } = useAuth();
 
@@ -54,21 +39,39 @@ const LoginScreen: React.FC = () => {
         };
     }, [disableScroll]);
 
+   
+
     const handleLogin = () => {
         let Email = email;
         let Mot_De_Passe = password;
+
         UserService.login({ Email, Mot_De_Passe }).then((response) => {
-            console.log(response);
+            console.log('Response:', response);
+
             if (response && response.status === 200) {
-                setToken(response.data?.token);
-                navigate('/gestion-comptes');
+                const receivedToken = response.data?.token;
+                setToken(receivedToken);
+                console.log('Received token:', receivedToken);
+
+                if (receivedToken) {
+                    navigate('/gestion-comptes');
+                    console.log("Redirecting to gestion-comptes");
+                }
             } else {
                 setError('Email ou mot de passe incorrect');
             }
         }).catch((error) => {
-            console.error(error);
+            console.error('Login error:', error);
             setError('Email ou mot de passe incorrect');
         });
+    };
+
+    useEffect(() => {
+        if (token) {
+            localStorage.setItem('token', token);
+            console.log('Token stored in local storage:', token);
+        }
+    }, [token]);
 
         // if (!email || !password) {
         //     setError('Veuillez entrer votre email et mot de passe');
@@ -101,7 +104,7 @@ const LoginScreen: React.FC = () => {
         //         navigate('/home');
         //         break;
         // }
-    };
+
 
     return (
         <div className='container-register'>
