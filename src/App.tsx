@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate, Link } from 'react-router-dom';
+import { useDispatch, useSelector } from 'react-redux';
 import HomeSuiveurPage from './screen/HomeSuiveurPage';
 import LoginScreen from './screen/LoginScreen';
 import PriseRdvScreen from './screen/PriseRdvScreen';
@@ -11,40 +12,44 @@ import AlertesGeneralesScreen from './screen/AlertesGeneralesScreen';
 import SuiviEntretiensScreen from './screen/SuiviEntretiensScreen';
 import logo from './assets/img/logoSU.png';
 import userImage from './assets/img/userPicture.png';
-import './screen/styles/Navbar.css'; 
+import './screen/styles/Navbar.css';
 
-import { Provider, useSelector } from 'react-redux';
+import { Provider } from 'react-redux';
 import store from './store/store';
 
-
 const App: React.FC = () => {
-  
-  const token = useSelector((state:any) => state.auth.token);
-  console.log('token', token);
+  const token = useSelector((state: any) => state.auth.token);
+  const dispatch = useDispatch();
 
+  const handleLogout = () => {
+    // Supprimer le token du localStorage
+    localStorage.removeItem('token');
 
+    // Rediriger l'utilisateur vers la page de connexion
+    window.location.replace('/login');
+  };
 
   return (
     <Provider store={store}>
       <Router>
-        {token ?
-            <div className="navbar">
+        {token ? (
+          <div className="navbar">
             <div className='navbar-title-container'>
               <div>
                 <img src={logo} className='navbar-logo' alt='logo' />
                 <div className='separator'></div>
-                {token && ( 
+                {token && (
                   <div className='userImg-container'>
                     <img className="user-img" src={userImage} alt="" />
-                      <h3>ddd</h3>
-                    <button onClick={() =>{}}>Logout</button>
+                    <h3>ddd</h3>
+                    <button onClick={handleLogout}>Logout</button>
                   </div>
-                 )} 
+                )}
               </div>
             </div>
             <div className='separator'></div>
             <div className='navbar-links'>
-              <Link to="/home" className='navbar-item'>
+              <Link to="/home-suiveur" className='navbar-item'>
                 <div className='navbar-item-icon'><p>🏠</p></div>
                 <div className='navbar-item-title'><p>Home</p></div>
               </Link>
@@ -77,9 +82,10 @@ const App: React.FC = () => {
                 <div className='navbar-item-title'><p>Suivi des Entretiens</p></div>
               </Link>
             </div>
-          </div>  : null}
+          </div>
+        ) : null}
         <Routes>
-          <Route path="/" element={<Navigate to={token ?"/home-suiveur" : "/login"} replace />} />
+          <Route path="/" element={<Navigate to={token ? "/home-suiveur" : "/login"} replace />} />
           <Route path="/login" element={token ? <Navigate to="/gestion-comptes" replace /> : <LoginScreen />} />
           <Route path="/home-suiveur" element={<HomeSuiveurPage />} />
           <Route path='/rdv' element={<PriseRdvScreen />} />
