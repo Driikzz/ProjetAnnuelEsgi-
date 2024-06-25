@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import "../App.css";
 import registerLogo from '../assets/img/logoSU.png';
-import { Link, useNavigate } from 'react-router-dom';
 import UserService from '../services/UserService';
 import { useDispatch, useSelector } from 'react-redux';
 import { setToken } from '../slice/authSlice';
 import { useAsyncStorage } from '@react-native-async-storage/async-storage';
+import { BrowserRouter as Link } from 'react-router-dom';
 
 const LoginScreen: React.FC = () => {
     const [disableScroll, setDisableScroll] = useState(true);
@@ -13,7 +13,6 @@ const LoginScreen: React.FC = () => {
     const [password, setPassword] = useState<string>('');
     const [error, setError] = useState<string>('');
     const [tokenUser, setTokenUsers] = useState(''); 
-    const navigate = useNavigate();
 
     const dispatch = useDispatch();
 
@@ -54,7 +53,7 @@ const LoginScreen: React.FC = () => {
                 dispatch(setToken(token));
                 setTokenUsers(token);
                 setItem(response.data.token);
-                navigate('/gestion-comptes'); 
+                window.location.reload()
             } else {
                 setError('Email ou mot de passe incorrect');
             }
@@ -99,7 +98,7 @@ const LoginScreen: React.FC = () => {
                         </button>
 
                         <div className='register-item'>
-                            <Link to='/forgot-password'>Mot de passe oublié?</Link>
+                            {/* <Link to='/forgot-password'>Mot de passe oublié?</Link> */}
                         </div>
                     </div>
                 </div>

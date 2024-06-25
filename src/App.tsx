@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { BrowserRouter as Router, Routes, Route, Navigate, Link } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
 import HomeSuiveurPage from './screen/HomeSuiveurPage';
 import LoginScreen from './screen/LoginScreen';
 import PriseRdvScreen from './screen/PriseRdvScreen';
@@ -57,12 +57,16 @@ const App: React.FC = () => {
     }
   } , [token]);
 
+  const logout = () => {
+    setToken('');
+  }
+
 
 
   return (
     <Provider store={store}>
+       {token ? (
       <Router>
-        {token ?
             <div className="navbar">
             <div className='navbar-title-container'>
               <div>
@@ -72,7 +76,7 @@ const App: React.FC = () => {
                   <div className='userImg-container'>
                     <img className="user-img" src={userImage} alt="" />
                       <h3>{data?.name}</h3>
-                    <button onClick={() =>{}}>Logout</button>
+                    <button onClick={logout}>Logout</button>
                   </div>
                  )} 
               </div>
@@ -112,10 +116,9 @@ const App: React.FC = () => {
                 <div className='navbar-item-title'><p>Suivi des Entretiens</p></div>
               </Link>
             </div>
-          </div>  : null}
+          </div> 
         <Routes>
-          <Route path="/" element={<Navigate to={token ?"/home-suiveur" : "/login"} replace />} />
-          <Route path="/login" element={token ? <Navigate to="/gestion-comptes" replace /> : <LoginScreen />} />
+          <Route path="/login" element={<LoginScreen></LoginScreen>}/>
           <Route path="/home-suiveur" element={<HomeSuiveurPage />} />
           <Route path='/rdv' element={<PriseRdvScreen />} />
           <Route path='/rdv-mi-parcours' element={<PriseRdvMiParcoursScreen />} />
@@ -126,6 +129,9 @@ const App: React.FC = () => {
           <Route path='/suivi-entretiens' element={<SuiviEntretiensScreen />} />
         </Routes>
       </Router>
+     ) :(
+  <LoginScreen /> ) }
+    
     </Provider>
   );
   
