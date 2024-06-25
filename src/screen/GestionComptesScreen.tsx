@@ -4,7 +4,7 @@ import { FaTrash, FaPlus, FaEdit, FaDownload, FaSearch } from 'react-icons/fa';
 import * as XLSX from 'xlsx';
 import UserService from '../services/UserService';
 import { useSelector } from 'react-redux';
-import { setUsers } from '../action/userSlice.';
+import { useAsyncStorage } from '@react-native-async-storage/async-storage';
 
 interface Suiveur {
   id: number;
@@ -16,7 +16,70 @@ interface Suiveur {
 }
 
 const GestionComptesSuiveursScreen: React.FC = () => {
-  const token = useSelector((state:any) => state.auth.token);
+  
+
+
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isBatchModalOpen, setIsBatchModalOpen] = useState(false);
+  const [editMode, setEditMode] = useState(false);
+  const [expandedTags, setExpandedTags] = useState<string[]>([]);
+  const [expandedRoles, setExpandedRoles] = useState<string[]>([]);
+  const [batchUsers, setBatchUsers] = useState([{ nom: '', prenom: '', email: '', tags: '' }]);
+  const [showAllUsers, setShowAllUsers] = useState(false);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [editUser, setEditUser] = useState<Suiveur | null>(null);
+
+  const [token, setToken] = useState('');
+  const { getItem } = useAsyncStorage('token');
+  
+  
+  useEffect(() => {
+      const getToken = async () => {
+          try {
+              const savedToken = await getItem();
+              if (savedToken !== null) {
+                  setToken(savedToken);
+              }
+          } catch (error) {
+              console.error('Error loading token from AsyncStorage:', error);
+          }
+      };
+
+      getToken();
+  }, []);
+
+
+  
+  useEffect(() => {
+    const FetchUserWithToken = async () => {
+      try{
+        const response = await UserService.getUser(token!); // Add type assertion (!) to ensure token is of type string
+        console.log(" response.data", response.data);
+        setUser(response);
+      } catch (error) {
+        console.error(error);
+      }
+    }
+    const FetchAllUsers = async () => {
+      try{
+        const response = await UserService.getAllUsers(token!); // Add type assertion (!) to ensure token is of type string
+        console.log(" all users :", response);
+        setUser(response);
+      } catch (error) {
+        console.error(error);
+      }
+    }
+
+    if (token) {
+      FetchUserWithToken();
+      FetchAllUsers();
+    }
+  } , [token]);
+
+
+
+  console.log('token', token);
+
   const [user, setUser] = useState<any>(null);
   const [form, setForm] = useState({
     nom: '',
@@ -31,31 +94,6 @@ const GestionComptesSuiveursScreen: React.FC = () => {
     { id: 2, nom: 'Suiveur', prenom: '2', email: 'suiveur2@example.com', role: 'Suiveur', tags: ['Tag2'] },
     // Ajoutez plus de suiveurs ici si nécessaire
   ]);
-
-  useEffect(() => {
-    const FetchUserWithToken = async () => {
-      try{
-        const response = await UserService.getUser(token);
-        console.log(" response.data", response.data);
-        setUser(response.data);
-      } catch (error) {
-        console.error(error);
-      }
-    }
-    FetchUserWithToken();
-  } , [token]);
-
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [isBatchModalOpen, setIsBatchModalOpen] = useState(false);
-  const [editMode, setEditMode] = useState(false);
-  const [expandedTags, setExpandedTags] = useState<string[]>([]);
-  const [expandedRoles, setExpandedRoles] = useState<string[]>([]);
-  const [batchUsers, setBatchUsers] = useState([{ nom: '', prenom: '', email: '', tags: '' }]);
-  const [showAllUsers, setShowAllUsers] = useState(false);
-  const [searchTerm, setSearchTerm] = useState('');
-  const [editUser, setEditUser] = useState<Suiveur | null>(null);
-
-  // récupérer le token du local storage
 
   useEffect(() => {
     console.log('token', token);

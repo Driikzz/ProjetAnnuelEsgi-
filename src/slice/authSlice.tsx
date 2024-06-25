@@ -2,7 +2,7 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 
 const initialState = {
-    token: localStorage.getItem('token'), // Initialiser avec le token du localStorage
+    token: null as string | null,
     error: null as string | null,
 };
 
@@ -12,11 +12,9 @@ const authSlice = createSlice({
     reducers: {
         setToken: (state, action: PayloadAction<string>) => {
             state.token = action.payload;
-            localStorage.setItem('token', action.payload); // Stocke le token dans le localStorage
         },
         clearToken: (state) => {
             state.token = null;
-            localStorage.removeItem('token'); // Supprime le token du localStorage
         },
         setError: (state, action: PayloadAction<string>) => {
             state.error = action.payload;

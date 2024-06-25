@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate, Link } from 'react-router-dom';
 import HomeSuiveurPage from './screen/HomeSuiveurPage';
 import LoginScreen from './screen/LoginScreen';
@@ -15,12 +15,47 @@ import './screen/styles/Navbar.css';
 
 import { Provider, useSelector } from 'react-redux';
 import store from './store/store';
+import { useAsyncStorage } from '@react-native-async-storage/async-storage';
+import UserService from './services/UserService';
+
 
 
 const App: React.FC = () => {
+  const [token, setToken] = useState('');
+  const { getItem } = useAsyncStorage('token');
+  const [user, setUser] = useState<any>(null);
+  const [data, setData] = useState<any>(null);
   
-  const token = useSelector((state:any) => state.auth.token);
-  console.log('token', token);
+  
+  useEffect(() => {
+      const getToken = async () => {
+          try {
+              const savedToken = await getItem();
+              if (savedToken !== null) {
+                  setToken(savedToken);
+              }
+          } catch (error) {
+              console.error('Error loading token from AsyncStorage:', error);
+          }
+      };
+
+      getToken();
+  }, []);
+
+  useEffect(() => {
+    const FetchUserWithToken = async () => {
+      try{
+        const response = await UserService.getUser(token!); // Add type assertion (!) to ensure token is of type string
+        console.log(" response.data", response);
+        setData(response);
+      } catch (error) {
+        console.error(error);
+      }
+    }
+    if (token) {
+      FetchUserWithToken();
+    }
+  } , [token]);
 
 
 
@@ -36,7 +71,7 @@ const App: React.FC = () => {
                 {token && ( 
                   <div className='userImg-container'>
                     <img className="user-img" src={userImage} alt="" />
-                      <h3>ddd</h3>
+                      <h3>{data?.name}</h3>
                     <button onClick={() =>{}}>Logout</button>
                   </div>
                  )} 
@@ -93,6 +128,7 @@ const App: React.FC = () => {
       </Router>
     </Provider>
   );
+  
 };
 
 export default App;

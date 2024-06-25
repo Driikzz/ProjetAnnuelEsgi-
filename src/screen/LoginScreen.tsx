@@ -4,7 +4,8 @@ import registerLogo from '../assets/img/logoSU.png';
 import { Link, useNavigate } from 'react-router-dom';
 import UserService from '../services/UserService';
 import { useDispatch, useSelector } from 'react-redux';
-import { setTokenAction } from '../action/action';
+import { setToken } from '../slice/authSlice';
+import { useAsyncStorage } from '@react-native-async-storage/async-storage';
 
 const LoginScreen: React.FC = () => {
     const [disableScroll, setDisableScroll] = useState(true);
@@ -16,13 +17,22 @@ const LoginScreen: React.FC = () => {
 
     const dispatch = useDispatch();
 
-    const token = useSelector((state:any) => state.auth.token);
+    const { getItem, setItem } = useAsyncStorage('token');
 
-    // Store the token in local storage
     useEffect(() => {
-        localStorage.setItem('token', token);
-        console.log('token', token);
-    }, [token]);
+        const getToken = async () => {
+            try {
+                const savedToken = await getItem();
+                if (savedToken !== null) {
+                    await setItem(savedToken);
+                }
+            } catch (error) {
+                console.error('Error loading token from AsyncStorage:', error);
+            }
+        };
+        getToken();
+    }, [getItem]);
+
 
     useEffect(() => {
         if (disableScroll) {
@@ -41,8 +51,9 @@ const LoginScreen: React.FC = () => {
             console.log(response);
             if (response && response.status === 200) {
                 const token = response.data;
-                dispatch(setTokenAction(token));
+                dispatch(setToken(token));
                 setTokenUsers(token);
+                setItem(response.data.token);
                 navigate('/gestion-comptes'); 
             } else {
                 setError('Email ou mot de passe incorrect');
