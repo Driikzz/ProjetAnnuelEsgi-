@@ -19,6 +19,7 @@ const GestionComptesSuiveursScreen: React.FC = () => {
   const [token, setToken] = useState('');
   const { getItem } = useAsyncStorage('token');
   const [users, setUsers] = useState<IUser[]>([]);
+  const [updated, setUpdated] = useState(false);
 
   // État par rôle
   const [alternants, setAlternants] = useState<IUser[]>([]);
@@ -79,6 +80,31 @@ const GestionComptesSuiveursScreen: React.FC = () => {
       fetchAllUsers();
     }
   }, [token]);
+
+  useEffect(() => {
+    const fetchAllUsers = async () => {
+      try {
+        const response = await UserService.getAllUsers(token!); // Add type assertion (!) to ensure token is of type string
+        console.log(" all users :", response);
+        setUsers(response);
+
+        // Mise à jour des états par rôle
+        setAlternants(response.filter((user: IUser) => user.role === 'Alternant'));
+        setSuiveursRole(response.filter((user: IUser) => user.role === 'Suiveur'));
+        setTuteurs(response.filter((user: IUser) => user.role === 'Tuteur'));
+        setResponsables(response.filter((user: IUser) => 
+          user.role === 'Responsable pédagogique' || user.role === 'Responsable relations entreprises (Cre)'));
+        setAdmins(response.filter((user: IUser) => user.role === 'Admin / Directeur'));
+      } catch (error) {
+        console.error(error);
+      }
+    };
+
+    if (token) {
+      fetchAllUsers();
+    }
+  } , [updated]);
+
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     setForm({
@@ -183,8 +209,16 @@ const GestionComptesSuiveursScreen: React.FC = () => {
     );
   };
 
-  const handleEditUser = (user: IUser) => {
-    setEditUser(user);
+  const handleEditUser = (user: number) => {
+    console.log("user", user);
+    try{
+      UserService.getUserById(user, token).then((response) => {
+        console.log(" USER FOR UPDATE", response);
+        setEditUser(response);
+      });
+    } catch (error) {
+      console.error(error);
+    }
   };
 
   const handleEditChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
@@ -194,6 +228,22 @@ const GestionComptesSuiveursScreen: React.FC = () => {
         [e.target.name]: e.target.value,
         tag: (e.target.name === 'tags' ? e.target.value.split(',').map(tag => tag.trim()) : editUser.tag) as string[]
       });
+    }
+  }
+
+    const handleUpdateUser = () => {
+      if (editUser) {
+        try{
+          UserService.updateUser(editUser, editUser.id, token).then((response) => {
+            console.log("response", response);
+            setUpdated(true);
+            setTimeout(() => {
+              setUpdated(false);
+            }, 1000);
+          });
+        } catch (error) {
+          console.error(error);
+      }
     }
   };
 
@@ -489,11 +539,11 @@ const GestionComptesSuiveursScreen: React.FC = () => {
             <form onSubmit={handleEditSubmit}>
               <div className="form-group">
                 <label htmlFor="editNom">Nom :</label>
-                <input type="text" id="editNom" name="nom" value={editUser.name} onChange={handleEditChange} />
+                <input type="text" id="editNom" name="lastname" value={editUser.lastname} onChange={handleEditChange} />
               </div>
               <div className="form-group">
                 <label htmlFor="editPrenom">Prénom :</label>
-                <input type="text" id="editPrenom" name="prenom" value={editUser.lastname} onChange={handleEditChange} />
+                <input type="text" id="editPrenom" name="name" value={editUser.name} onChange={handleEditChange} />
               </div>
               <div className="form-group">
                 <label htmlFor="editEmail">Email :</label>
@@ -529,7 +579,7 @@ const GestionComptesSuiveursScreen: React.FC = () => {
                 <input type="password" id="editPassword" name="password" value={editUser.password} onChange={handleEditChange} />
               </div>
 
-              <button type="submit">Modifier</button>
+              <button type="submit" onClick={handleUpdateUser}>Modifier</button>
             </form>
           </div>
         </div>

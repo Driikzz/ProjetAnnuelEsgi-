@@ -4,6 +4,7 @@ let URL_API = 'http://localhost:3000';
 
 
 const UserService = {
+    
     async getProfile() {
         const response = await fetch(`${URL_API}/profile`, {
         method: 'GET',
@@ -24,6 +25,20 @@ const UserService = {
                 },
             });
             console.log(response.data);
+            return response.data;
+        } catch (error) {
+            console.error(error);
+        }
+    },
+
+    async getUserById(id: number, token: string) {
+        try{
+            const response = await axios.get(`${URL_API}/api/users/users/${id}`, {
+                headers: {
+                    'Content-Type': 'application/json',
+                    Authorization: `Bearer ${token}`,
+                },
+            });
             return response.data;
         } catch (error) {
             console.error(error);
@@ -62,7 +77,23 @@ const UserService = {
         } catch (error) {
             console.error(error);
         }
+    },
+
+    async updateUser(user: IUser, userId :any , token: string) {
+        try {
+            const response = await axios.put(`${URL_API}/api/users/users/${userId}`, user, {
+                headers: {
+                    'Content-Type': 'application/json',
+                    Authorization: `Bearer ${token}`,
+                },
+            });
+            return response.data;
+        } catch (error) {
+            console.error(error);
+        }
     }
+
+        
 };
     
 
