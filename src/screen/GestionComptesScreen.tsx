@@ -208,6 +208,28 @@ const GestionComptesSuiveursScreen: React.FC = () => {
     }
   };
 
+  const handleCreateAccount = () => {
+    const newUsers: IUser = {
+      id: users.length + 1,
+      name: form.name,
+      lastname: form.lastname,
+      password: form.password,
+      email: form.email,
+      phone: form.phone,
+      role: form.role,
+      tag: form.tags.split(',').map(tag => tag.trim()),
+    };
+    setUsers([...users, newUsers]);
+    setForm({ name: '', lastname: '',password: '', email: '',phone: '', role: 'Alternant', tags: '' });
+    setIsModalOpen(false);
+    try{
+      UserService.createUser(newUsers);
+      console.log("newUsers", newUsers);
+    } catch (error) {
+      console.error(error);
+    }
+  }
+
   const renderTableByRole = (role: string, suiveursByRole: IUser[]) => {
     const tags = Array.from(new Set(suiveursByRole.flatMap((suiveur) => suiveur.tag || [])));
 
@@ -233,7 +255,7 @@ const GestionComptesSuiveursScreen: React.FC = () => {
                   <td>{suiveur.name}</td>
                   <td>{suiveur.lastname}</td>
                   <td>{suiveur.email}</td>
-                  <td>{(suiveur.tag || []).join(', ')}</td>
+                  <td>{(suiveur.tag || [])}</td>
                   {editMode && (
                     <td>
                       <button onClick={() => handleDelete(suiveur.id)} className="delete-button">
@@ -331,17 +353,25 @@ const GestionComptesSuiveursScreen: React.FC = () => {
             <span className="close-button" onClick={() => setIsModalOpen(false)}>&times;</span>
             <h2>Formulaire de Création de Compte par Admin</h2>
             <form onSubmit={handleSubmit}>
-              <div className="form-group">
-                <label htmlFor="nom">Nom :</label>
-                <input type="text" id="nom" name="nom" value={form.lastname} onChange={handleChange} />
+            <div className="form-group">
+                <label htmlFor="editNom">Nom :</label>
+                <input type="text" id="editNom" name="name" value={form.name} onChange={handleChange} />
               </div>
               <div className="form-group">
-                <label htmlFor="prenom">Prénom :</label>
-                <input type="text" id="prenom" name="prenom" value={form.name} onChange={handleChange} />
+                <label htmlFor="editPrenom">Prénom :</label>
+                <input type="text" id="editPrenom" name="lastname" value={form.lastname} onChange={handleChange} />
               </div>
               <div className="form-group">
                 <label htmlFor="email">Email :</label>
                 <input type="email" id="email" name="email" value={form.email} onChange={handleChange} />
+              </div>
+              <div className="form-group">
+                <label htmlFor="password">Mot de passe :</label>
+                <input type="password" id="password" name="password" value={form.password} onChange={handleChange} />
+              </div>
+              <div className="form-group">
+                <label htmlFor="phone">Téléphone :</label>
+                <input type="text" id="phone" name="phone" value={form.phone} onChange={handleChange} />
               </div>
               <div className="form-group">
                 <label htmlFor="role">Rôle :</label>
@@ -358,7 +388,7 @@ const GestionComptesSuiveursScreen: React.FC = () => {
                 <label htmlFor="tags">Tags (séparés par des virgules) :</label>
                 <input type="text" id="tags" name="tags" value={form.tags} onChange={handleChange} />
               </div>
-              <button type="submit">Créer Compte</button>
+              <button type="submit" onClick={handleCreateAccount}>Créer Compte</button>
             </form>
           </div>
         </div>
@@ -498,7 +528,7 @@ const GestionComptesSuiveursScreen: React.FC = () => {
                 <label htmlFor="editPassword">Mot de passe :</label>
                 <input type="password" id="editPassword" name="password" value={editUser.password} onChange={handleEditChange} />
               </div>
-              
+
               <button type="submit">Modifier</button>
             </form>
           </div>

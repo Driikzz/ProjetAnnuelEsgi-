@@ -1,5 +1,5 @@
 import axios from "axios";
-
+import { IUser } from "../interfaces/IUsers";
 let URL_API = 'http://localhost:3000';
 
 
@@ -29,16 +29,6 @@ const UserService = {
             console.error(error);
         }
     },
-    
-
-   async createUser(user: any) {
-        try{
-            const response = await axios.post(`${URL_API}/users`, user);
-            return response.data;
-        } catch (error) {
-            console.error(error);
-        }
-    },
 
     async login(user: any) {
         try {
@@ -58,6 +48,16 @@ const UserService = {
                     Authorization: `Bearer ${token}`,
                 },
             });
+            return response.data;
+        } catch (error) {
+            console.error(error);
+        }
+    },
+
+    async createUser(user: any) {
+        try {
+            const response = await axios.post(`${URL_API}/api/users/users/`, user);
+            console.log(response);
             return response.data;
         } catch (error) {
             console.error(error);
