@@ -3,7 +3,7 @@ import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
 import HomeSuiveurPage from './screen/HomeSuiveurPage';
 import LoginScreen from './screen/LoginScreen';
 import PriseRdvScreen from './screen/PriseRdvScreen';
-import PriseRdvMiParcoursScreen from './screen/PriseRdvMiParcoursScreen';
+import SuiviSuiveurScreen from './screen/SuiviSuiveurScreen';
 import RelancesScreen from './screen/RelancesScreen';
 import BilanScreen from './screen/BilanScreen';
 import GestionComptesScreen from './screen/GestionComptesScreen';
@@ -95,9 +95,9 @@ const App: React.FC = () => {
                 <div className='navbar-item-icon'><p>📅</p></div>
                 <div className='navbar-item-title'><p>Prise de RDV</p></div>
               </Link>
-              <Link to="/rdv-mi-parcours" className='navbar-item'>
+              <Link to="/suivisuiveur" className='navbar-item'>
                 <div className='navbar-item-icon'><p>📅</p></div>
-                <div className='navbar-item-title'><p>RDV Mi-Parcours</p></div>
+                <div className='navbar-item-title'><p>Suivi des Alternant</p></div>
               </Link>
               <Link to="/relances" className='navbar-item'>
                 <div className='navbar-item-icon'><p>🔄</p></div>
@@ -121,7 +121,7 @@ const App: React.FC = () => {
           <Route path="/login" element={<LoginScreen></LoginScreen>}/>
           <Route path="/home-suiveur" element={<HomeSuiveurPage />} />
           <Route path='/rdv' element={<PriseRdvScreen />} />
-          <Route path='/rdv-mi-parcours' element={<PriseRdvMiParcoursScreen />} />
+          <Route path='/suivisuiveur' element={<SuiviSuiveurScreen />} />
           <Route path='/relances' element={<RelancesScreen />} />
           <Route path='/bilan' element={<BilanScreen />} />
           <Route path='/gestion-comptes' element={<GestionComptesScreen />} />
