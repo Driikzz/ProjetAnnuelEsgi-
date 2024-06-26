@@ -13,7 +13,7 @@ const GestionComptesSuiveursScreen: React.FC = () => {
   const [editMode, setEditMode] = useState(false);
   const [expandedTags, setExpandedTags] = useState<string[]>([]);
   const [expandedRoles, setExpandedRoles] = useState<string[]>([]);
-  const [batchUsers, setBatchUsers] = useState([{ nom: '', prenom: '', email: '', tags: '' }]);
+  const [batchUsers, setBatchUsers] = useState([{ name: '', lastname: '', email: '', tag: '', password: '',phone: '', role: ''}]);
   const [searchTerm, setSearchTerm] = useState('');
   const [editUser, setEditUser] = useState<IUser | null>(null);
   const [token, setToken] = useState('');
@@ -32,8 +32,8 @@ const GestionComptesSuiveursScreen: React.FC = () => {
 
   // Définir l'état pour le formulaire
   const [form, setForm] = useState({
-    nom: '',
-    prenom: '',
+    name: '',
+    lastname: '',
     password:'',
     email: '',
     phone: '',
@@ -94,7 +94,7 @@ const GestionComptesSuiveursScreen: React.FC = () => {
   };
 
   const handleAddBatchUser = () => {
-    setBatchUsers([...batchUsers, { nom: '', prenom: '', email: '', tags: '' }]);
+    setBatchUsers([...batchUsers, { name: '', lastname: '', email: '', tag: '' , password: '',phone: '', role: ''}]);
   };
 
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -116,7 +116,8 @@ const GestionComptesSuiveursScreen: React.FC = () => {
           password: String(row['password'] || ''),
           email: String(row['Email'] || ''),
           phone: String(row['Phonz'] || ''),
-          tags: String(row['Tags'] || ''),
+          tag: String(row['Tags'] || ''),
+          role: String(row['Role'] || ''),
         }));
 
         setBatchUsers(newBatchUsers);
@@ -158,7 +159,7 @@ const GestionComptesSuiveursScreen: React.FC = () => {
       email: user.email,
       phone: user.phone,
       role: form.role,
-      tags: user.tag.split(',').map((tag:any) => tag.trim()),
+      tag: user.tag.split(',').map((tag:any) => tag.trim()),
     }));
     setUsers([...users, ...newUsers]);
     setBatchUsers([{ name: '', lastname: '', password:'', email: '',phone: '', role: '' , tag: '' }]);
@@ -227,18 +228,18 @@ const GestionComptesSuiveursScreen: React.FC = () => {
               </tr>
             </thead>
             <tbody>
-              {suiveursByRole.map((suiveur) => (
+              {suiveursByRole.map((suiveur:any) => (
                 <tr key={suiveur.id}>
-                  <td>{suiveur.nom}</td>
-                  <td>{suiveur.prenom}</td>
+                  <td>{suiveur.name}</td>
+                  <td>{suiveur.lastname}</td>
                   <td>{suiveur.email}</td>
-                  <td>{(suiveur.tags || []).join(', ')}</td>
+                  <td>{(suiveur.tag || []).join(', ')}</td>
                   {editMode && (
                     <td>
                       <button onClick={() => handleDelete(suiveur.id)} className="delete-button">
                         <FaTrash />
                       </button>
-                      <button onClick={() => handleEditUser(suiveur)} className="edit-button">
+                      <button onClick={() => handleEditUser(suiveur.id)} className="edit-button">
                         <FaEdit />
                       </button>
                     </td>
@@ -332,11 +333,11 @@ const GestionComptesSuiveursScreen: React.FC = () => {
             <form onSubmit={handleSubmit}>
               <div className="form-group">
                 <label htmlFor="nom">Nom :</label>
-                <input type="text" id="nom" name="nom" value={form.nom} onChange={handleChange} />
+                <input type="text" id="nom" name="nom" value={form.lastname} onChange={handleChange} />
               </div>
               <div className="form-group">
                 <label htmlFor="prenom">Prénom :</label>
-                <input type="text" id="prenom" name="prenom" value={form.prenom} onChange={handleChange} />
+                <input type="text" id="prenom" name="prenom" value={form.name} onChange={handleChange} />
               </div>
               <div className="form-group">
                 <label htmlFor="email">Email :</label>
@@ -386,14 +387,14 @@ const GestionComptesSuiveursScreen: React.FC = () => {
                         <td>
                           <input
                             type="text"
-                            value={user.nom}
+                            value={user.lastname}
                             onChange={(e) => handleBatchUserChange(index, 'nom', e.target.value)}
                           />
                         </td>
                         <td>
                           <input
                             type="text"
-                            value={user.prenom}
+                            value={user.name}
                             onChange={(e) => handleBatchUserChange(index, 'prenom', e.target.value)}
                           />
                         </td>
@@ -407,7 +408,7 @@ const GestionComptesSuiveursScreen: React.FC = () => {
                         <td>
                           <input
                             type="text"
-                            value={user.tags}
+                            value={user.tag}
                             onChange={(e) => handleBatchUserChange(index, 'tags', e.target.value)}
                           />
                         </td>
@@ -474,8 +475,8 @@ const GestionComptesSuiveursScreen: React.FC = () => {
                   <option value="Alternant">Alternant</option>
                   <option value="Suiveur">Suiveur</option>
                   <option value="Tuteur">Tuteur</option>
-                  <option value="Responsable pédagogique">Responsable pédagogique</option>
-                  <option value="Responsable relations entreprises (Cre)">Responsable relations entreprises (Cre)</option>
+                  <option value="RP">Responsable pédagogique</option>
+                  <option value="CRE">Responsable relations entreprises (Cre)</option>
                   <option value="Admin / Directeur">Admin / Directeur</option>
                 </select>
               </div>
@@ -489,6 +490,15 @@ const GestionComptesSuiveursScreen: React.FC = () => {
                   onChange={handleEditChange}
                 />
               </div>
+              <div className="form-group">
+                <label htmlFor="editPhone">Téléphone :</label>
+                <input type="text" id="editPhone" name="phone" value={editUser.phone} onChange={handleEditChange} />
+              </div>
+              <div className="form-group">
+                <label htmlFor="editPassword">Mot de passe :</label>
+                <input type="password" id="editPassword" name="password" value={editUser.password} onChange={handleEditChange} />
+              </div>
+              
               <button type="submit">Modifier</button>
             </form>
           </div>
