@@ -3,7 +3,6 @@ import './styles/GestionComptes.css';
 import { FaTrash, FaPlus, FaEdit, FaDownload, FaSearch } from 'react-icons/fa';
 import * as XLSX from 'xlsx';
 import UserService from '../services/UserService';
-import { useSelector } from 'react-redux';
 import { useAsyncStorage } from '@react-native-async-storage/async-storage';
 
 interface Suiveur {
@@ -12,75 +11,33 @@ interface Suiveur {
   prenom: string;
   email: string;
   role: string;
-  tags: string[];
+  tags?: string[];
 }
 
 const GestionComptesSuiveursScreen: React.FC = () => {
-  
-
-
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isBatchModalOpen, setIsBatchModalOpen] = useState(false);
   const [editMode, setEditMode] = useState(false);
   const [expandedTags, setExpandedTags] = useState<string[]>([]);
   const [expandedRoles, setExpandedRoles] = useState<string[]>([]);
   const [batchUsers, setBatchUsers] = useState([{ nom: '', prenom: '', email: '', tags: '' }]);
-  const [showAllUsers, setShowAllUsers] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [editUser, setEditUser] = useState<Suiveur | null>(null);
-
   const [token, setToken] = useState('');
   const { getItem } = useAsyncStorage('token');
+  const [suiveurs, setSuiveurs] = useState<Suiveur[]>([]);
+
+  // État par rôle
+  const [alternants, setAlternants] = useState<Suiveur[]>([]);
+  const [suiveursRole, setSuiveursRole] = useState<Suiveur[]>([]);
+  const [tuteurs, setTuteurs] = useState<Suiveur[]>([]);
+  const [responsables, setResponsables] = useState<Suiveur[]>([]);
+  const [admins, setAdmins] = useState<Suiveur[]>([]);
   
-  
-  useEffect(() => {
-      const getToken = async () => {
-          try {
-              const savedToken = await getItem();
-              if (savedToken !== null) {
-                  setToken(savedToken);
-              }
-          } catch (error) {
-              console.error('Error loading token from AsyncStorage:', error);
-          }
-      };
+  // État pour l'affichage global
+  const [showAllUsers, setShowAllUsers] = useState(false);
 
-      getToken();
-  }, []);
-
-
-  
-  useEffect(() => {
-    const FetchUserWithToken = async () => {
-      try{
-        const response = await UserService.getUser(token!); // Add type assertion (!) to ensure token is of type string
-        console.log(" response.data", response.data);
-        setUser(response);
-      } catch (error) {
-        console.error(error);
-      }
-    }
-    const FetchAllUsers = async () => {
-      try{
-        const response = await UserService.getAllUsers(token!); // Add type assertion (!) to ensure token is of type string
-        console.log(" all users :", response);
-        setUser(response);
-      } catch (error) {
-        console.error(error);
-      }
-    }
-
-    if (token) {
-      FetchUserWithToken();
-      FetchAllUsers();
-    }
-  } , [token]);
-
-
-
-  console.log('token', token);
-
-  const [user, setUser] = useState<any>(null);
+  // Définir l'état pour le formulaire
   const [form, setForm] = useState({
     nom: '',
     prenom: '',
@@ -89,15 +46,44 @@ const GestionComptesSuiveursScreen: React.FC = () => {
     tags: '',
   });
 
-  const [suiveurs, setSuiveurs] = useState<Suiveur[]>([
-    { id: 1, nom: 'Suiveur', prenom: '1', email: 'suiveur1@example.com', role: 'Suiveur', tags: ['Tag1'] },
-    { id: 2, nom: 'Suiveur', prenom: '2', email: 'suiveur2@example.com', role: 'Suiveur', tags: ['Tag2'] },
-    // Ajoutez plus de suiveurs ici si nécessaire
-  ]);
+  useEffect(() => {
+    const getToken = async () => {
+      try {
+        const savedToken = await getItem();
+        if (savedToken !== null) {
+          setToken(savedToken);
+        }
+      } catch (error) {
+        console.error('Error loading token from AsyncStorage:', error);
+      }
+    };
+
+    getToken();
+  }, [getItem]);
 
   useEffect(() => {
-    console.log('token', token);
-  } , [token]);
+    const fetchAllUsers = async () => {
+      try {
+        const response = await UserService.getAllUsers(token!); // Add type assertion (!) to ensure token is of type string
+        console.log(" all users :", response);
+        setSuiveurs(response);
+
+        // Mise à jour des états par rôle
+        setAlternants(response.filter((user: Suiveur) => user.role === 'Alternant'));
+        setSuiveursRole(response.filter((user: Suiveur) => user.role === 'Suiveur'));
+        setTuteurs(response.filter((user: Suiveur) => user.role === 'Tuteur'));
+        setResponsables(response.filter((user: Suiveur) => 
+          user.role === 'Responsable pédagogique' || user.role === 'Responsable relations entreprises (Cre)'));
+        setAdmins(response.filter((user: Suiveur) => user.role === 'Admin / Directeur'));
+      } catch (error) {
+        console.error(error);
+      }
+    };
+
+    if (token) {
+      fetchAllUsers();
+    }
+  }, [token]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     setForm({
@@ -105,8 +91,6 @@ const GestionComptesSuiveursScreen: React.FC = () => {
       [e.target.name]: e.target.value,
     });
   };
-
- 
 
   const handleBatchUserChange = (index: number, field: string, value: string) => {
     const newBatchUsers = [...batchUsers];
@@ -224,10 +208,8 @@ const GestionComptesSuiveursScreen: React.FC = () => {
     }
   };
 
-  const renderTableByRole = (role: string) => {
-    const suiveursByRole = suiveurs.filter(suiveur => suiveur.role === role);
-
-    const tags = Array.from(new Set(suiveursByRole.flatMap((suiveur) => suiveur.tags)));
+  const renderTableByRole = (role: string, suiveursByRole: Suiveur[]) => {
+    const tags = Array.from(new Set(suiveursByRole.flatMap((suiveur) => suiveur.tags || [])));
 
     return (
       <div className="suiveurs-list" key={role}>
@@ -238,43 +220,31 @@ const GestionComptesSuiveursScreen: React.FC = () => {
           <table className={editMode ? 'edit-mode' : ''}>
             <thead>
               <tr>
-                <th>Tag</th>
                 <th>Nom</th>
                 <th>Prénom</th>
                 <th>Email</th>
+                <th>Tags</th>
                 {editMode && <th>Actions</th>}
               </tr>
             </thead>
             <tbody>
-              {tags.map((tag) => (
-                <React.Fragment key={tag}>
-                  <tr className="tag-header" onClick={() => handleToggleTag(tag)}>
-                    <td colSpan={editMode ? 5 : 4}>
-                      {tag} {expandedTags.includes(tag) ? '-' : '+'}
+              {suiveursByRole.map((suiveur) => (
+                <tr key={suiveur.id}>
+                  <td>{suiveur.nom}</td>
+                  <td>{suiveur.prenom}</td>
+                  <td>{suiveur.email}</td>
+                  <td>{(suiveur.tags || []).join(', ')}</td>
+                  {editMode && (
+                    <td>
+                      <button onClick={() => handleDelete(suiveur.id)} className="delete-button">
+                        <FaTrash />
+                      </button>
+                      <button onClick={() => handleEditUser(suiveur)} className="edit-button">
+                        <FaEdit />
+                      </button>
                     </td>
-                  </tr>
-                  {expandedTags.includes(tag) && suiveursByRole
-                    .filter((suiveur) => suiveur.tags.includes(tag))
-                    .sort((a, b) => a.nom.localeCompare(b.nom))
-                    .map((suiveur) => (
-                      <tr key={suiveur.id}>
-                        <td>{tag}</td>
-                        <td>{suiveur.nom}</td>
-                        <td>{suiveur.prenom}</td>
-                        <td>{suiveur.email}</td>
-                        {editMode && (
-                          <td>
-                            <button onClick={() => handleDelete(suiveur.id)} className="delete-button">
-                              <FaTrash />
-                            </button>
-                            <button onClick={() => handleEditUser(suiveur)} className="edit-button">
-                              <FaEdit />
-                            </button>
-                          </td>
-                        )}
-                      </tr>
-                    ))}
-                </React.Fragment>
+                  )}
+                </tr>
               ))}
             </tbody>
           </table>
@@ -285,9 +255,9 @@ const GestionComptesSuiveursScreen: React.FC = () => {
 
   const renderAllUsersTable = () => {
     const filteredSuiveurs = suiveurs.filter(suiveur =>
-      suiveur.nom.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      suiveur.prenom.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      suiveur.email.toLowerCase().includes(searchTerm.toLowerCase())
+      (suiveur.nom?.toLowerCase().includes(searchTerm.toLowerCase()) || '') ||
+      (suiveur.prenom?.toLowerCase().includes(searchTerm.toLowerCase()) || '') ||
+      (suiveur.email?.toLowerCase().includes(searchTerm.toLowerCase()) || '')
     );
 
     return (
@@ -317,7 +287,7 @@ const GestionComptesSuiveursScreen: React.FC = () => {
                 <td>{suiveur.prenom}</td>
                 <td>{suiveur.email}</td>
                 <td>{suiveur.role}</td>
-                <td>{suiveur.tags.join(', ')}</td>
+                <td>{(suiveur.tags || []).join(', ')}</td>
                 {editMode && (
                   <td>
                     <button onClick={() => handleDelete(suiveur.id)} className="delete-button">
@@ -473,12 +443,11 @@ const GestionComptesSuiveursScreen: React.FC = () => {
         renderAllUsersTable()
       ) : (
         <>
-          {renderTableByRole('Alternant')}
-          {renderTableByRole('Suiveur')}
-          {renderTableByRole('Tuteur')}
-          {renderTableByRole('Responsable pédagogique')}
-          {renderTableByRole('Responsable relations entreprises (Cre)')}
-          {renderTableByRole('Admin / Directeur')}
+          {renderTableByRole('Admins / Directeurs', admins)}
+          {renderTableByRole('Responsables', responsables)}
+          {renderTableByRole('Suiveurs', suiveursRole)}
+          {renderTableByRole('Tuteurs', tuteurs)}
+          {renderTableByRole('Alternants', alternants)}
         </>
       )}
 
@@ -517,7 +486,7 @@ const GestionComptesSuiveursScreen: React.FC = () => {
                   type="text"
                   id="editTags"
                   name="tags"
-                  value={(editUser.tags as unknown) as string}
+                  value={(editUser.tags || []).join(', ')}
                   onChange={handleEditChange}
                 />
               </div>
