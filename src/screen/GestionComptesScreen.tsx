@@ -4,15 +4,8 @@ import { FaTrash, FaPlus, FaEdit, FaDownload, FaSearch } from 'react-icons/fa';
 import * as XLSX from 'xlsx';
 import UserService from '../services/UserService';
 import { useAsyncStorage } from '@react-native-async-storage/async-storage';
+import IUser from '../interfaces/IUsers';
 
-interface Suiveur {
-  id: number;
-  nom: string;
-  prenom: string;
-  email: string;
-  role: string;
-  tags?: string[];
-}
 
 const GestionComptesSuiveursScreen: React.FC = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -22,17 +15,17 @@ const GestionComptesSuiveursScreen: React.FC = () => {
   const [expandedRoles, setExpandedRoles] = useState<string[]>([]);
   const [batchUsers, setBatchUsers] = useState([{ nom: '', prenom: '', email: '', tags: '' }]);
   const [searchTerm, setSearchTerm] = useState('');
-  const [editUser, setEditUser] = useState<Suiveur | null>(null);
+  const [editUser, setEditUser] = useState<IUser | null>(null);
   const [token, setToken] = useState('');
   const { getItem } = useAsyncStorage('token');
-  const [suiveurs, setSuiveurs] = useState<Suiveur[]>([]);
+  const [users, setUsers] = useState<IUser[]>([]);
 
   // État par rôle
-  const [alternants, setAlternants] = useState<Suiveur[]>([]);
-  const [suiveursRole, setSuiveursRole] = useState<Suiveur[]>([]);
-  const [tuteurs, setTuteurs] = useState<Suiveur[]>([]);
-  const [responsables, setResponsables] = useState<Suiveur[]>([]);
-  const [admins, setAdmins] = useState<Suiveur[]>([]);
+  const [alternants, setAlternants] = useState<IUser[]>([]);
+  const [suiveursRole, setSuiveursRole] = useState<IUser[]>([]);
+  const [tuteurs, setTuteurs] = useState<IUser[]>([]);
+  const [responsables, setResponsables] = useState<IUser[]>([]);
+  const [admins, setAdmins] = useState<IUser[]>([]);
   
   // État pour l'affichage global
   const [showAllUsers, setShowAllUsers] = useState(false);
@@ -41,7 +34,9 @@ const GestionComptesSuiveursScreen: React.FC = () => {
   const [form, setForm] = useState({
     nom: '',
     prenom: '',
+    password:'',
     email: '',
+    phone: '',
     role: 'Alternant',
     tags: '',
   });
@@ -66,15 +61,15 @@ const GestionComptesSuiveursScreen: React.FC = () => {
       try {
         const response = await UserService.getAllUsers(token!); // Add type assertion (!) to ensure token is of type string
         console.log(" all users :", response);
-        setSuiveurs(response);
+        setUsers(response);
 
         // Mise à jour des états par rôle
-        setAlternants(response.filter((user: Suiveur) => user.role === 'Alternant'));
-        setSuiveursRole(response.filter((user: Suiveur) => user.role === 'Suiveur'));
-        setTuteurs(response.filter((user: Suiveur) => user.role === 'Tuteur'));
-        setResponsables(response.filter((user: Suiveur) => 
+        setAlternants(response.filter((user: IUser) => user.role === 'Alternant'));
+        setSuiveursRole(response.filter((user: IUser) => user.role === 'Suiveur'));
+        setTuteurs(response.filter((user: IUser) => user.role === 'Tuteur'));
+        setResponsables(response.filter((user: IUser) => 
           user.role === 'Responsable pédagogique' || user.role === 'Responsable relations entreprises (Cre)'));
-        setAdmins(response.filter((user: Suiveur) => user.role === 'Admin / Directeur'));
+        setAdmins(response.filter((user: IUser) => user.role === 'Admin / Directeur'));
       } catch (error) {
         console.error(error);
       }
@@ -116,9 +111,11 @@ const GestionComptesSuiveursScreen: React.FC = () => {
         const parsedData = XLSX.utils.sheet_to_json(sheet);
 
         const newBatchUsers = parsedData.map((row: any) => ({
-          nom: String(row['Nom'] || ''),
-          prenom: String(row['Prénom'] || ''),
+          name: String(row['Nom'] || ''),
+          lastname: String(row['Prénom'] || ''),
+          password: String(row['password'] || ''),
           email: String(row['Email'] || ''),
+          phone: String(row['Phonz'] || ''),
           tags: String(row['Tags'] || ''),
         }));
 
@@ -138,37 +135,39 @@ const GestionComptesSuiveursScreen: React.FC = () => {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    const newSuiveur: Suiveur = {
-      id: suiveurs.length + 1,
-      nom: form.nom,
-      prenom: form.prenom,
+    const newUsers: IUser = {
+      id: users.length + 1,
+      name: form.name,
+      lastname: form.lastname,
+      password: form.password,
       email: form.email,
       role: form.role,
-      tags: form.tags.split(',').map(tag => tag.trim()),
+      tag: form.tags.split(',').map(tag => tag.trim()),
     };
-    setSuiveurs([...suiveurs, newSuiveur]);
-    setForm({ nom: '', prenom: '', email: '', role: 'Alternant', tags: '' });
+    setUsers([...users, newUsers]);
+    setForm({ name: '', lastname: '',password: '', email: '',phone: '' , role: 'Alternant', tags: '' });
     setIsModalOpen(false);
   };
 
   const handleBatchSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    const newSuiveurs = batchUsers.map((user, index) => ({
-      id: suiveurs.length + index + 1,
-      nom: user.nom,
-      prenom: user.prenom,
+    const newUsers = batchUsers.map((user:any, index) => ({
+      name: user.name,
+      lastname: user.lastname,
+      password: user.password,
       email: user.email,
+      phone: user.phone,
       role: form.role,
-      tags: user.tags.split(',').map(tag => tag.trim()),
+      tags: user.tag.split(',').map((tag:any) => tag.trim()),
     }));
-    setSuiveurs([...suiveurs, ...newSuiveurs]);
-    setBatchUsers([{ nom: '', prenom: '', email: '', tags: '' }]);
+    setUsers([...users, ...newUsers]);
+    setBatchUsers([{ name: '', lastname: '', password:'', email: '',phone: '', role: '' , tag: '' }]);
     setIsBatchModalOpen(false);
   };
 
   const handleDelete = (id: number) => {
-    const updatedSuiveurs = suiveurs.filter((suiveur) => suiveur.id !== id);
-    setSuiveurs(updatedSuiveurs);
+    const updatedUsers = users.filter((user) => user.id !== id);
+    setUsers(updatedUsers);
   };
 
   const handleToggleTag = (tag: string) => {
@@ -183,7 +182,7 @@ const GestionComptesSuiveursScreen: React.FC = () => {
     );
   };
 
-  const handleEditUser = (user: Suiveur) => {
+  const handleEditUser = (user: IUser) => {
     setEditUser(user);
   };
 
@@ -192,7 +191,7 @@ const GestionComptesSuiveursScreen: React.FC = () => {
       setEditUser({
         ...editUser,
         [e.target.name]: e.target.value,
-        tags: (e.target.name === 'tags' ? e.target.value.split(',').map(tag => tag.trim()) : editUser.tags) as string[]
+        tag: (e.target.name === 'tags' ? e.target.value.split(',').map(tag => tag.trim()) : editUser.tag) as string[]
       });
     }
   };
@@ -200,16 +199,16 @@ const GestionComptesSuiveursScreen: React.FC = () => {
   const handleEditSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (editUser) {
-      const updatedSuiveurs = suiveurs.map((suiveur) =>
-        suiveur.id === editUser.id ? { ...editUser } : suiveur
+      const updatedSuiveurs = users.map((user:any) =>
+        user.id === editUser.id ? { ...editUser } : user
       );
-      setSuiveurs(updatedSuiveurs);
+      setUsers(updatedSuiveurs);
       setEditUser(null);
     }
   };
 
-  const renderTableByRole = (role: string, suiveursByRole: Suiveur[]) => {
-    const tags = Array.from(new Set(suiveursByRole.flatMap((suiveur) => suiveur.tags || [])));
+  const renderTableByRole = (role: string, suiveursByRole: IUser[]) => {
+    const tags = Array.from(new Set(suiveursByRole.flatMap((suiveur) => suiveur.tag || [])));
 
     return (
       <div className="suiveurs-list" key={role}>
@@ -254,10 +253,10 @@ const GestionComptesSuiveursScreen: React.FC = () => {
   };
 
   const renderAllUsersTable = () => {
-    const filteredSuiveurs = suiveurs.filter(suiveur =>
-      (suiveur.nom?.toLowerCase().includes(searchTerm.toLowerCase()) || '') ||
-      (suiveur.prenom?.toLowerCase().includes(searchTerm.toLowerCase()) || '') ||
-      (suiveur.email?.toLowerCase().includes(searchTerm.toLowerCase()) || '')
+    const filteredSuiveurs = users.filter(user =>
+      (user.lastname?.toLowerCase().includes(searchTerm.toLowerCase()) || '') ||
+      (user.name?.toLowerCase().includes(searchTerm.toLowerCase()) || '') ||
+      (user.email?.toLowerCase().includes(searchTerm.toLowerCase()) || '')
     );
 
     return (
@@ -281,10 +280,10 @@ const GestionComptesSuiveursScreen: React.FC = () => {
             </tr>
           </thead>
           <tbody>
-            {filteredSuiveurs.map((suiveur) => (
+            {filteredSuiveurs.map((suiveur:any) => (
               <tr key={suiveur.id}>
-                <td>{suiveur.nom}</td>
-                <td>{suiveur.prenom}</td>
+                <td>{suiveur.lastname}</td>
+                <td>{suiveur.name}</td>
                 <td>{suiveur.email}</td>
                 <td>{suiveur.role}</td>
                 <td>{(suiveur.tags || []).join(', ')}</td>
@@ -459,11 +458,11 @@ const GestionComptesSuiveursScreen: React.FC = () => {
             <form onSubmit={handleEditSubmit}>
               <div className="form-group">
                 <label htmlFor="editNom">Nom :</label>
-                <input type="text" id="editNom" name="nom" value={editUser.nom} onChange={handleEditChange} />
+                <input type="text" id="editNom" name="nom" value={editUser.name} onChange={handleEditChange} />
               </div>
               <div className="form-group">
                 <label htmlFor="editPrenom">Prénom :</label>
-                <input type="text" id="editPrenom" name="prenom" value={editUser.prenom} onChange={handleEditChange} />
+                <input type="text" id="editPrenom" name="prenom" value={editUser.lastname} onChange={handleEditChange} />
               </div>
               <div className="form-group">
                 <label htmlFor="editEmail">Email :</label>
@@ -486,7 +485,7 @@ const GestionComptesSuiveursScreen: React.FC = () => {
                   type="text"
                   id="editTags"
                   name="tags"
-                  value={(editUser.tags || []).join(', ')}
+                  value={(editUser.tag || []).join(', ')}
                   onChange={handleEditChange}
                 />
               </div>
