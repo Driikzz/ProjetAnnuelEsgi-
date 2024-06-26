@@ -228,10 +228,10 @@ const GestionComptesSuiveursScreen: React.FC = () => {
               </tr>
             </thead>
             <tbody>
-              {suiveursByRole.map((suiveur) => (
+              {suiveursByRole.map((suiveur:any) => (
                 <tr key={suiveur.id}>
-                  <td>{suiveur.nom}</td>
-                  <td>{suiveur.prenom}</td>
+                  <td>{suiveur.lastname}</td>
+                  <td>{suiveur.name}</td>
                   <td>{suiveur.email}</td>
                   <td>{(suiveur.tags || []).join(', ')}</td>
                   {editMode && (
