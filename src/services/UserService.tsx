@@ -69,15 +69,22 @@ const UserService = {
         }
     },
 
-    async createUser(user: any) {
+    async createUser(user: any, token: any) {
         try {
-            const response = await axios.post(`${URL_API}/api/users/users/`, user);
+            const response = await axios.post(`${URL_API}/api/users/users/`, user, {
+                headers: {
+                    'Content-Type': 'application/json',
+                    Authorization: `Bearer ${token}`,
+                },
+            });
+    
             console.log(response);
             return response.data;
         } catch (error) {
             console.error(error);
         }
     },
+    
 
     async updateUser(user: IUser, userId :any , token: string) {
         try {

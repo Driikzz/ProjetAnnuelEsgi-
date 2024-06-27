@@ -121,6 +121,7 @@ const GestionComptesSuiveursScreen: React.FC = () => {
 
   const handleAddBatchUser = () => {
     setBatchUsers([...batchUsers, { name: '', lastname: '', email: '', tag: '' , password: '',phone: '', role: ''}]);
+   
   };
 
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -141,7 +142,7 @@ const GestionComptesSuiveursScreen: React.FC = () => {
           lastname: String(row['Prénom'] || ''),
           password: String(row['password'] || ''),
           email: String(row['Email'] || ''),
-          phone: String(row['Phonz'] || ''),
+          phone: String(row['Phone'] || ''),
           tag: String(row['Tags'] || ''),
           role: String(row['Role'] || ''),
         }));
@@ -155,7 +156,7 @@ const GestionComptesSuiveursScreen: React.FC = () => {
 
   const handleDownloadTemplate = () => {
     const wb = XLSX.utils.book_new();
-    const ws = XLSX.utils.json_to_sheet([{ Nom: '', Prénom: '', Email: '', Tags: '' }]);
+    const ws = XLSX.utils.json_to_sheet([{ Nom: '', Prénom: '', Email: '',phone:'', role: '', Tags: '' }]);
     XLSX.utils.book_append_sheet(wb, ws, 'Template');
     XLSX.writeFile(wb, 'template_utilisateurs.xlsx');
   };
@@ -258,6 +259,25 @@ const GestionComptesSuiveursScreen: React.FC = () => {
     }
   };
 
+  const handleCreateLotAccount = () => {
+    const newUsers = batchUsers.map((user:any) => ({
+      name: user.name,
+      lastname: user.lastname,
+      password: "test",
+      email: user.email,
+      phone: user.phone,
+      role: form.role,
+      tag: user.tag.split(',').map((tag:any) => tag.trim()),
+    }));
+    setUsers([...users, ...newUsers]);
+    try{
+      UserService.createUser(newUsers, token);
+      console.log("LotUsers", newUsers);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
   const handleCreateAccount = () => {
     const newUsers: IUser = {
       id: users.length + 1,
@@ -273,13 +293,12 @@ const GestionComptesSuiveursScreen: React.FC = () => {
     setForm({ name: '', lastname: '',password: '', email: '',phone: '', role: 'Alternant', tags: '' });
     setIsModalOpen(false);
     try{
-      UserService.createUser(newUsers);
+      UserService.createUser(newUsers, token);
       console.log("newUsers", newUsers);
     } catch (error) {
       console.error(error);
     }
   }
-
   const renderTableByRole = (role: string, suiveursByRole: IUser[]) => {
     const tags = Array.from(new Set(suiveursByRole.flatMap((suiveur) => suiveur.tag || [])));
 
@@ -458,6 +477,8 @@ const GestionComptesSuiveursScreen: React.FC = () => {
                       <th>Nom</th>
                       <th>Prénom</th>
                       <th>Email</th>
+                      <th>Phone</th>
+                      <th>Rôle</th>
                       <th>Tags</th>
                     </tr>
                   </thead>
@@ -468,14 +489,14 @@ const GestionComptesSuiveursScreen: React.FC = () => {
                           <input
                             type="text"
                             value={user.lastname}
-                            onChange={(e) => handleBatchUserChange(index, 'nom', e.target.value)}
+                            onChange={(e) => handleBatchUserChange(index, 'lastname', e.target.value)}
                           />
                         </td>
                         <td>
                           <input
                             type="text"
                             value={user.name}
-                            onChange={(e) => handleBatchUserChange(index, 'prenom', e.target.value)}
+                            onChange={(e) => handleBatchUserChange(index, 'name', e.target.value)}
                           />
                         </td>
                         <td>
@@ -488,8 +509,25 @@ const GestionComptesSuiveursScreen: React.FC = () => {
                         <td>
                           <input
                             type="text"
+                            value={user.phone}
+                            onChange={(e) => handleBatchUserChange(index, 'phone', e.target.value)}
+                          />
+                        </td>
+                        <td>
+                          <select name="role" id="role">
+                            <option value="Alternant">Alternant</option>
+                            <option value="Suiveur">Suiveur</option>
+                            <option value="Tuteur">Tuteur</option>
+                            <option value="RP">Responsable pédagogique</option>
+                            <option value="CRE">Responsable relations entreprises (Cre)</option>
+                            <option value="Admin">Admin / Directeur</option>
+                          </select>
+                        </td>
+                        <td>
+                          <input
+                            type="text"
                             value={user.tag}
-                            onChange={(e) => handleBatchUserChange(index, 'tags', e.target.value)}
+                            onChange={(e) => handleBatchUserChange(index, 'tag', e.target.value)}
                           />
                         </td>
                       </tr>
@@ -513,7 +551,7 @@ const GestionComptesSuiveursScreen: React.FC = () => {
                   <option value="Admin / Directeur">Admin / Directeur</option>
                 </select>
               </div>
-              <button type="submit">Créer Comptes</button>
+              <button type="submit" onClick={handleCreateLotAccount}>Créer Comptes</button>
             </form>
           </div>
         </div>
