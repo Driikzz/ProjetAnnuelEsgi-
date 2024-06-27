@@ -1,6 +1,6 @@
 import axios from "axios";
 import { IUser } from "../interfaces/IUsers";
-let URL_API = 'http://localhost:3000';
+let URL_API = 'http://localhost:3006';
 
 
 const UserService = {

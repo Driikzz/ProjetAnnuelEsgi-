@@ -1,7 +1,7 @@
 import axios from "axios";
 import { IEntreprise } from '../interfaces/IEntreprise';
 
-let URL_API = 'http://localhost:3000';
+let URL_API = 'http://localhost:3006';
 
 const EntrepriseService = {
   async createEntreprise(entreprise: IEntreprise, token: string) {
