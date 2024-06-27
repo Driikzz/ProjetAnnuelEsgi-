@@ -5,27 +5,24 @@ import LoginScreen from './screen/LoginScreen';
 import PriseRdvScreen from './screen/PriseRdvScreen';
 import SuiviSuiveurScreen from './screen/SuiviSuiveurScreen';
 import RelancesScreen from './screen/RelancesScreen';
-import BilanScreen from './screen/BilanScreen';
 import GestionComptesScreen from './screen/GestionComptesScreen';
 import AlertesGeneralesScreen from './screen/AlertesGeneralesScreen';
 import SuiviEntretiensScreen from './screen/SuiviEntretiensScreen';
+import GestionEntreprise from './screen/GestionEntreprise';
 import logo from './assets/img/logoSU.png';
 import userImage from './assets/img/userPicture.png';
 import './screen/styles/Navbar.css'; 
 
-import { Provider, useSelector } from 'react-redux';
+import { Provider } from 'react-redux';
 import store from './store/store';
 import { useAsyncStorage } from '@react-native-async-storage/async-storage';
 import UserService from './services/UserService';
-
-
 
 const App: React.FC = () => {
   const [token, setToken] = useState('');
   const { getItem } = useAsyncStorage('token');
   const [user, setUser] = useState<any>(null);
   const [data, setData] = useState<any>(null);
-  
   
   useEffect(() => {
       const getToken = async () => {
@@ -44,7 +41,7 @@ const App: React.FC = () => {
 
   useEffect(() => {
     const FetchUserWithToken = async () => {
-      try{
+      try {
         const response = await UserService.getUser(token!); // Add type assertion (!) to ensure token is of type string
         console.log(" response.data", response);
         setData(response);
@@ -61,13 +58,11 @@ const App: React.FC = () => {
     setToken('');
   }
 
-
-
   return (
     <Provider store={store}>
-       {token ? (
-      <Router>
-            <div className="navbar">
+      {token ? (
+        <Router>
+          <div className="navbar">
             <div className='navbar-title-container'>
               <div>
                 <img src={logo} className='navbar-logo' alt='logo' />
@@ -83,7 +78,7 @@ const App: React.FC = () => {
             </div>
             <div className='separator'></div>
             <div className='navbar-links'>
-              <Link to="/home" className='navbar-item'>
+              <Link to="/home-suiveur" className='navbar-item'>
                 <div className='navbar-item-icon'><p>🏠</p></div>
                 <div className='navbar-item-title'><p>Home</p></div>
               </Link>
@@ -103,9 +98,9 @@ const App: React.FC = () => {
                 <div className='navbar-item-icon'><p>🔄</p></div>
                 <div className='navbar-item-title'><p>Relances</p></div>
               </Link>
-              <Link to="/bilan" className='navbar-item'>
+              <Link to="/gestion-entreprise" className='navbar-item'>
                 <div className='navbar-item-icon'><p>📊</p></div>
-                <div className='navbar-item-title'><p>Bilan</p></div>
+                <div className='navbar-item-title'><p>Gestion Entreprise</p></div>
               </Link>
               <Link to="/alertes" className='navbar-item'>
                 <div className='navbar-item-icon'><p>⚠️</p></div>
@@ -117,24 +112,23 @@ const App: React.FC = () => {
               </Link>
             </div>
           </div> 
-        <Routes>
-          <Route path="/login" element={<LoginScreen></LoginScreen>}/>
-          <Route path="/home-suiveur" element={<HomeSuiveurPage />} />
-          <Route path='/rdv' element={<PriseRdvScreen />} />
-          <Route path='/suivisuiveur' element={<SuiviSuiveurScreen />} />
-          <Route path='/relances' element={<RelancesScreen />} />
-          <Route path='/bilan' element={<BilanScreen />} />
-          <Route path='/gestion-comptes' element={<GestionComptesScreen />} />
-          <Route path='/alertes' element={<AlertesGeneralesScreen />} />
-          <Route path='/suivi-entretiens' element={<SuiviEntretiensScreen />} />
-        </Routes>
-      </Router>
-     ) :(
-  <LoginScreen /> ) }
-    
+          <Routes>
+            <Route path="/login" element={<LoginScreen />} />
+            <Route path="/home-suiveur" element={<HomeSuiveurPage />} />
+            <Route path='/rdv' element={<PriseRdvScreen />} />
+            <Route path='/suivisuiveur' element={<SuiviSuiveurScreen />} />
+            <Route path='/relances' element={<RelancesScreen />} />
+            <Route path='/gestion-entreprise' element={<GestionEntreprise />} />
+            <Route path='/gestion-comptes' element={<GestionComptesScreen />} />
+            <Route path='/alertes' element={<AlertesGeneralesScreen />} />
+            <Route path='/suivi-entretiens' element={<SuiviEntretiensScreen />} />
+          </Routes>
+        </Router>
+      ) : (
+        <LoginScreen /> 
+      )}
     </Provider>
   );
-  
 };
 
 export default App;

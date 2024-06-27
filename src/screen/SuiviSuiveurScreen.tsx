@@ -114,13 +114,13 @@ const SuiviSuiveurScreen: React.FC = () => {
               className="enterprise-header"
               onClick={() => toggleEnterprise(enterpriseName)}
             >
-              <h2>{enterpriseName} {expandedEnterprises[enterpriseName] ? '▲' : '▼'}</h2>
+              <h2>{groupedByEnterprise[enterpriseName][0].alternant?.name} {groupedByEnterprise[enterpriseName][0].alternant?.lastname} {expandedEnterprises[enterpriseName] ? '▲' : '▼'}</h2>
             </div>
             {expandedEnterprises[enterpriseName] && (
               <div className="enterprise-details">
                 {groupedByEnterprise[enterpriseName].map((detail, idx) => (
                   <div key={idx} className="duo-details">
-                    <h3>Duo ID: {detail.duo.idDuo}</h3>
+                    <h3>Enterprise: {detail.duo.enterpriseName}</h3>
                     <p>Alternant: {detail.alternant?.name} {detail.alternant?.lastname}</p>
                     <p>Tuteur: {detail.tuteur?.name} {detail.tuteur?.lastname}</p>
                     <p>Suiveur: {detail.suiveur?.name} {detail.suiveur?.lastname}</p>
