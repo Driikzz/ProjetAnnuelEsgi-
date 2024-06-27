@@ -3,6 +3,7 @@ import UserService from '../services/UserService'; // Assurez-vous que le chemin
 import DuoService from '../services/DuoService'; // Assurez-vous que le chemin est correct
 import IDuos from '../interfaces/IDuos'; // Assurez-vous que le chemin est correct
 import IUsers from '../interfaces/IUsers'; // Assurez-vous que le chemin est correct
+import './styles/SuiviSuiveur.css'; // Importez le fichier CSS
 
 interface DetailedDuo {
   duo: IDuos;
@@ -14,6 +15,10 @@ interface DetailedDuo {
 const SuiviSuiveurScreen: React.FC = () => {
   const [detailedDuos, setDetailedDuos] = useState<DetailedDuo[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [expandedEnterprises, setExpandedEnterprises] = useState<{ [key: string]: boolean }>({});
+  const [selectedMeetingType, setSelectedMeetingType] = useState<string | null>(null);
+  const [selectedDuo, setSelectedDuo] = useState<IDuos | null>(null);
 
   useEffect(() => {
     const fetchInitialData = async () => {
@@ -44,6 +49,50 @@ const SuiviSuiveurScreen: React.FC = () => {
     setDetailedDuos(detailed);
   };
 
+  const openPopup = (duo: IDuos, meetingType: string) => {
+    setSelectedDuo(duo);
+    setSelectedMeetingType(meetingType);
+  };
+
+  const closePopup = () => {
+    setSelectedDuo(null);
+    setSelectedMeetingType(null);
+  };
+
+  const handleMeetingSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    // Logique pour gérer la soumission des réunions
+    closePopup();
+  };
+
+  const toggleEnterprise = (enterpriseName: string) => {
+    setExpandedEnterprises({
+      ...expandedEnterprises,
+      [enterpriseName]: !expandedEnterprises[enterpriseName],
+    });
+  };
+
+  const filteredDuos = detailedDuos.filter(detail => {
+    const searchTermLower = searchTerm.toLowerCase();
+    return (
+      detail.duo.enterpriseName.toLowerCase().includes(searchTermLower) ||
+      detail.alternant?.name.toLowerCase().includes(searchTermLower) ||
+      detail.alternant?.lastname.toLowerCase().includes(searchTermLower) ||
+      detail.tuteur?.name.toLowerCase().includes(searchTermLower) ||
+      detail.tuteur?.lastname.toLowerCase().includes(searchTermLower) ||
+      detail.suiveur?.name.toLowerCase().includes(searchTermLower) ||
+      detail.suiveur?.lastname.toLowerCase().includes(searchTermLower)
+    );
+  });
+
+  const groupedByEnterprise = filteredDuos.reduce((acc, detail) => {
+    if (!acc[detail.duo.enterpriseName]) {
+      acc[detail.duo.enterpriseName] = [];
+    }
+    acc[detail.duo.enterpriseName].push(detail);
+    return acc;
+  }, {} as { [key: string]: DetailedDuo[] });
+
   if (isLoading) {
     return <div>Loading...</div>; // Optionnellement améliorer la présentation de l'état de chargement
   }
@@ -51,15 +100,72 @@ const SuiviSuiveurScreen: React.FC = () => {
   return (
     <div className="container">
       <h1>Duo Monitoring and Follow-up</h1>
-      {detailedDuos.map((detail, index) => (
-        <div key={index} className="duo-details">
-          <h2>Duo ID: {detail.duo.idDuo}</h2>
-          <p>Alternant: {detail.alternant?.name} {detail.alternant?.lastname}</p>
-          <p>Tuteur: {detail.tuteur?.name} {detail.tuteur?.lastname}</p>
-          <p>Suiveur: {detail.suiveur?.name} {detail.suiveur?.lastname}</p>
-          <p>Enterprise: {detail.duo.enterpriseName}</p>
+      <input
+        type="text"
+        placeholder="Search by enterprise or name"
+        value={searchTerm}
+        onChange={(e) => setSearchTerm(e.target.value)}
+        className="search-bar"
+      />
+      <div className="duo-list">
+        {Object.keys(groupedByEnterprise).map((enterpriseName, index) => (
+          <div key={index} className={`enterprise-section ${expandedEnterprises[enterpriseName] ? 'expanded' : ''}`}>
+            <div
+              className="enterprise-header"
+              onClick={() => toggleEnterprise(enterpriseName)}
+            >
+              <h2>{enterpriseName} {expandedEnterprises[enterpriseName] ? '▲' : '▼'}</h2>
+            </div>
+            {expandedEnterprises[enterpriseName] && (
+              <div className="enterprise-details">
+                {groupedByEnterprise[enterpriseName].map((detail, idx) => (
+                  <div key={idx} className="duo-details">
+                    <h3>Duo ID: {detail.duo.idDuo}</h3>
+                    <p>Alternant: {detail.alternant?.name} {detail.alternant?.lastname}</p>
+                    <p>Tuteur: {detail.tuteur?.name} {detail.tuteur?.lastname}</p>
+                    <p>Suiveur: {detail.suiveur?.name} {detail.suiveur?.lastname}</p>
+                    <div className="meeting-status">
+                      <div>
+                        <span>Trial Period Meeting: {detail.duo.trialPeriodMeeting ? '✔️' : '❌'}</span>
+                        <button className="edit-button" onClick={() => openPopup(detail.duo, 'trialPeriodMeeting')}>Edit</button>
+                      </div>
+                      <div>
+                        <span>Mid Term Meeting: {detail.duo.midTermMeeting ? '✔️' : '❌'}</span>
+                        <button className="edit-button" onClick={() => openPopup(detail.duo, 'midTermMeeting')}>Edit</button>
+                      </div>
+                      <div>
+                        <span>Year End Meeting: {detail.duo.yearEndMeeting ? '✔️' : '❌'}</span>
+                        <button className="edit-button" onClick={() => openPopup(detail.duo, 'yearEndMeeting')}>Edit</button>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        ))}
+      </div>
+
+      {selectedMeetingType && selectedDuo && (
+        <div className="popup">
+          <div className="popup-inner">
+            <h2>{selectedMeetingType.replace(/([A-Z])/g, ' $1').trim()}</h2>
+            <form onSubmit={handleMeetingSubmit}>
+              <label>
+                Status:
+                <select>
+                  <option value="true">Completed</option>
+                  <option value="false">Not Completed</option>
+                </select>
+              </label>
+              <div className="popup-buttons">
+                <button type="submit">Submit</button>
+                <button type="button" onClick={closePopup}>Close</button>
+              </div>
+            </form>
+          </div>
         </div>
-      ))}
+      )}
     </div>
   );
 };
