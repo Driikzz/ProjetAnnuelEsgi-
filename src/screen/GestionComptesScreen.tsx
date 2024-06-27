@@ -31,6 +31,8 @@ const GestionComptesSuiveursScreen: React.FC = () => {
   // État pour l'affichage global
   const [showAllUsers, setShowAllUsers] = useState(false);
 
+  console.log(token);
+
   // Définir l'état pour le formulaire
   const [form, setForm] = useState({
     name: '',
@@ -273,6 +275,10 @@ const GestionComptesSuiveursScreen: React.FC = () => {
     try{
       UserService.createUser(newUsers, token);
       console.log("LotUsers", newUsers);
+      setUpdated(true);
+            setTimeout(() => {
+              setUpdated(false);
+            }, 1000);
     } catch (error) {
       console.error(error);
     }
@@ -294,6 +300,10 @@ const GestionComptesSuiveursScreen: React.FC = () => {
     setIsModalOpen(false);
     try{
       UserService.createUser(newUsers, token);
+      setUpdated(true);
+            setTimeout(() => {
+              setUpdated(false);
+            }, 1000);
       console.log("newUsers", newUsers);
     } catch (error) {
       console.error(error);
@@ -604,7 +614,7 @@ const GestionComptesSuiveursScreen: React.FC = () => {
                   type="text"
                   id="editTags"
                   name="tags"
-                  value={(editUser.tag || []).join(', ')}
+                  value={(editUser.tag)}
                   onChange={handleEditChange}
                 />
               </div>
