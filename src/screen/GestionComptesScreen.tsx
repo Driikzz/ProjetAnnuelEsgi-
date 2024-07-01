@@ -196,8 +196,17 @@ const GestionComptesSuiveursScreen: React.FC = () => {
   };
 
   const handleDelete = (id: number) => {
-    const updatedUsers = users.filter((user) => user.id !== id);
-    setUsers(updatedUsers);
+    try{
+      UserService.deleteUser(id, token).then((response) => {
+        console.log("response", response);
+        setUpdated(true);
+        setTimeout(() => {
+          setUpdated(false);
+        }, 1000);
+      });
+    } catch (error) {
+      console.error(error);
+    }
   };
 
   const handleToggleTag = (tag: string) => {

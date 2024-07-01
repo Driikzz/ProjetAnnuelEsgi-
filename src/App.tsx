@@ -69,9 +69,11 @@ const App: React.FC = () => {
                 <div className='separator'></div>
                 {token && ( 
                   <div className='userImg-container'>
+                    <br />
                     <img className="user-img" src={userImage} alt="" />
                       <h3>{data?.name}</h3>
-                    <button onClick={logout}>Logout</button>
+                    {/* <button onClick={data.id}>Modifier le compte</button> */}
+                    <button onClick={logout}>Déconnexion</button>
                   </div>
                  )} 
               </div>

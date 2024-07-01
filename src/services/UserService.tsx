@@ -98,6 +98,20 @@ const UserService = {
         } catch (error) {
             console.error(error);
         }
+    }, 
+
+    async deleteUser(userId: any, token: string) {
+        try {
+            const response = await axios.delete(`${URL_API}/api/users/users/${userId}`, {
+                headers: {
+                    'Content-Type': 'application/json',
+                    Authorization: `Bearer ${token}`,
+                },
+            });
+            return response.data;
+        } catch (error) {
+            console.error(error);
+        }
     }
 
         

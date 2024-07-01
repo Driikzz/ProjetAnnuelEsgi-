@@ -99,10 +99,10 @@ const SuiviSuiveurScreen: React.FC = () => {
 
   return (
     <div className="container">
-      <h1>Duo Monitoring and Follow-up</h1>
+      <h1>Suivi des duos</h1>
       <input
         type="text"
-        placeholder="Search by enterprise or name"
+        placeholder="Rechercher par nom ou entreprise"
         value={searchTerm}
         onChange={(e) => setSearchTerm(e.target.value)}
         className="search-bar"
@@ -126,16 +126,16 @@ const SuiviSuiveurScreen: React.FC = () => {
                     <p>Suiveur: {detail.suiveur?.name} {detail.suiveur?.lastname}</p>
                     <div className="meeting-status">
                       <div>
-                        <span>Trial Period Meeting: {detail.duo.trialPeriodMeeting ? '✔️' : '❌'}</span>
-                        <button className="edit-button" onClick={() => openPopup(detail.duo, 'trialPeriodMeeting')}>Edit</button>
+                        <span>Entretient periode d'essaie: {detail.duo.trialPeriodMeeting ? '✔️' : '❌'}</span>
+                        <button className="edit-button" onClick={() => openPopup(detail.duo, 'trialPeriodMeeting')}>Modifier</button>
                       </div>
                       <div>
-                        <span>Mid Term Meeting: {detail.duo.midTermMeeting ? '✔️' : '❌'}</span>
-                        <button className="edit-button" onClick={() => openPopup(detail.duo, 'midTermMeeting')}>Edit</button>
+                        <span>Entretient mi-parcour: {detail.duo.midTermMeeting ? '✔️' : '❌'}</span>
+                        <button className="edit-button" onClick={() => openPopup(detail.duo, 'midTermMeeting')}>Modifier</button>
                       </div>
                       <div>
-                        <span>Year End Meeting: {detail.duo.yearEndMeeting ? '✔️' : '❌'}</span>
-                        <button className="edit-button" onClick={() => openPopup(detail.duo, 'yearEndMeeting')}>Edit</button>
+                        <span>Enterient de fin d'année: {detail.duo.yearEndMeeting ? '✔️' : '❌'}</span>
+                        <button className="edit-button" onClick={() => openPopup(detail.duo, 'yearEndMeeting')}>Modifier</button>
                       </div>
                     </div>
                   </div>
