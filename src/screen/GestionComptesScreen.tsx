@@ -295,7 +295,6 @@ const GestionComptesSuiveursScreen: React.FC = () => {
 
   const handleCreateAccount = () => {
     const newUsers: IUser = {
-      id: users.length + 1,
       name: form.name,
       lastname: form.lastname,
       password: form.password,
