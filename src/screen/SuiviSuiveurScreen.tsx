@@ -1,8 +1,14 @@
 import React, { useState, useEffect } from 'react';
-import DuoService from '../services/DuoService'; // Assurez-vous que le chemin est correct
-import IDuos from '../interfaces/IDuos'; // Assurez-vous que le chemin est correct
-import './styles/SuiviSuiveur.css'; // Importez le fichier CSS
+import Modal from 'react-modal';
+import DuoService from '../services/DuoService';
 import UserService from '../services/UserService';
+import StartOfYearMeetingForm from '../components/forms/StartOfYearMeetingForm';
+import MidTermMeetingForm from '../components/forms/MidTermMeetingForm';
+import EndOfYearMeetingForm from '../components/forms/EndOfYearMeetingForm';
+import IDuos from '../interfaces/IDuos';
+import './styles/SuiviSuiveur.css';
+
+Modal.setAppElement('#root');  // Assurez-vous que cet élément correspond à l'ID de l'élément racine de votre application
 
 const SuiviSuiveurScreen: React.FC = () => {
   const [detailedDuos, setDetailedDuos] = useState<IDuos[]>([]);
@@ -19,7 +25,6 @@ const SuiviSuiveurScreen: React.FC = () => {
     const fetchUserWithToken = async () => {
       try {
         const response = await UserService.getUser(token);
-        console.log("User:", response);
         setUser(response);
       } catch (error) {
         console.error("Failed to fetch user:", error);
@@ -36,7 +41,6 @@ const SuiviSuiveurScreen: React.FC = () => {
       try {
         if (user) {
           const duos = await DuoService.getDuosByUserId(user.id, token);
-          console.log("Duos:", duos);
           setDetailedDuos(duos);
         }
       } catch (error) {
@@ -51,20 +55,14 @@ const SuiviSuiveurScreen: React.FC = () => {
     }
   }, [user, token]);
 
-  const openPopup = (duo: IDuos, meetingType: string) => {
+  const openForm = (duo: IDuos, meetingType: string) => {
     setSelectedDuo(duo);
     setSelectedMeetingType(meetingType);
   };
 
-  const closePopup = () => {
+  const closeForm = () => {
     setSelectedDuo(null);
     setSelectedMeetingType(null);
-  };
-
-  const handleMeetingSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    // Logique pour gérer la soumission des réunions
-    closePopup();
   };
 
   const toggleEnterprise = (enterpriseName: string) => {
@@ -96,7 +94,7 @@ const SuiviSuiveurScreen: React.FC = () => {
   }, {} as { [key: string]: IDuos[] });
 
   if (isLoading) {
-    return <div>Loading...</div>; // Optionnellement améliorer la présentation de l'état de chargement
+    return <div>Loading...</div>;
   }
 
   return (
@@ -129,15 +127,15 @@ const SuiviSuiveurScreen: React.FC = () => {
                     <div className="meeting-status">
                       <div>
                         <span>Entretient période d'essai: {detail.trialPeriodMeeting ? '✔️' : '❌'}</span>
-                        <button className="edit-button" onClick={() => openPopup(detail, 'trialPeriodMeeting')}>Modifier</button>
+                        <button className="edit-button" onClick={() => openForm(detail, 'trialPeriodMeeting')}>Modifier</button>
                       </div>
                       <div>
                         <span>Entretient mi-parcours: {detail.midTermMeeting ? '✔️' : '❌'}</span>
-                        <button className="edit-button" onClick={() => openPopup(detail, 'midTermMeeting')}>Modifier</button>
+                        <button className="edit-button" onClick={() => openForm(detail, 'midTermMeeting')}>Modifier</button>
                       </div>
                       <div>
                         <span>Entretien de fin d'année: {detail.yearEndMeeting ? '✔️' : '❌'}</span>
-                        <button className="edit-button" onClick={() => openPopup(detail, 'yearEndMeeting')}>Modifier</button>
+                        <button className="edit-button" onClick={() => openForm(detail, 'yearEndMeeting')}>Modifier</button>
                       </div>
                     </div>
                   </div>
@@ -148,26 +146,16 @@ const SuiviSuiveurScreen: React.FC = () => {
         ))}
       </div>
 
-      {selectedMeetingType && selectedDuo && (
-        <div className="popup">
-          <div className="popup-inner">
-            <h2>{selectedMeetingType.replace(/([A-Z])/g, ' $1').trim()}</h2>
-            <form onSubmit={handleMeetingSubmit}>
-              <label>
-                Status:
-                <select>
-                  <option value="true">Completed</option>
-                  <option value="false">Not Completed</option>
-                </select>
-              </label>
-              <div className="popup-buttons">
-                <button type="submit">Submit</button>
-                <button type="button" onClick={closePopup}>Close</button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
+      <Modal
+        isOpen={!!selectedMeetingType && !!selectedDuo}
+        onRequestClose={closeForm}
+        className="modal"
+        overlayClassName="overlay"
+      >
+        {selectedMeetingType === 'trialPeriodMeeting' && <StartOfYearMeetingForm duo={selectedDuo!} onClose={closeForm} />}
+        {selectedMeetingType === 'midTermMeeting' && <MidTermMeetingForm duo={selectedDuo!} onClose={closeForm} />}
+        {selectedMeetingType === 'yearEndMeeting' && <EndOfYearMeetingForm duo={selectedDuo!} onClose={closeForm} />}
+      </Modal>
     </div>
   );
 };
