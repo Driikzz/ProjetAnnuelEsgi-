@@ -112,8 +112,21 @@ const UserService = {
         } catch (error) {
             console.error(error);
         }
-    }
-
+    },
+    async updatePassword(newPassword: string, oldPassword:string , userId: any, token: string) {
+        console.log(newPassword, oldPassword, userId, token);
+        try {
+            const response = await axios.put(`${URL_API}/api/users/users/${userId}/password`, {newPassword, oldPassword: oldPassword}, {
+                headers: {
+                    'Content-Type': 'application/json',
+                    Authorization: `Bearer ${token}`,
+                },
+            });
+            return response.data;
+        } catch (error) {
+            console.error(error);
+        }
+    },
         
 };
     

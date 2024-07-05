@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Link, Navigate } from 'react-router-dom';
 import HomeSuiveurPage from './screen/HomeSuiveurPage';
 import LoginScreen from './screen/LoginScreen';
 import PriseRdvScreen from './screen/PriseRdvScreen';
@@ -11,7 +11,8 @@ import SuiviEntretiensScreen from './screen/SuiviEntretiensScreen';
 import GestionEntreprise from './screen/GestionEntreprise';
 import logo from './assets/img/logoSU.png';
 import userImage from './assets/img/userPicture.png';
-import './screen/styles/Navbar.css'; 
+import './screen/styles/Navbar.css';
+import './screen/styles/GestionEntreprise.css';
 
 import { Provider } from 'react-redux';
 import store from './store/store';
@@ -21,22 +22,30 @@ import UserService from './services/UserService';
 const App: React.FC = () => {
   const [token, setToken] = useState('');
   const { getItem } = useAsyncStorage('token');
-  const [user, setUser] = useState<any>(null);
-  const [data, setData] = useState<any>(null);
-  
-  useEffect(() => {
-      const getToken = async () => {
-          try {
-              const savedToken = await getItem();
-              if (savedToken !== null) {
-                  setToken(savedToken);
-              }
-          } catch (error) {
-              console.error('Error loading token from AsyncStorage:', error);
-          }
-      };
+  const [user, setUser] = useState<any>('');
+  const [data, setData] = useState<any>('');
 
-      getToken();
+  const [form, setForm] = useState({
+    oldPassword: '',
+    newPassword: '',
+    confirmPassword: ''
+  }); 
+  const [isFormVisible, setIsFormVisible] = useState(false);
+  const [error, setError] = useState('');
+
+  useEffect(() => {
+    const getToken = async () => {
+      try {
+        const savedToken = await getItem();
+        if (savedToken !== null) {
+          setToken(savedToken);
+        }
+      } catch (error) {
+        console.error('Error loading token from AsyncStorage:', error);
+      }
+    };
+
+    getToken();
   }, []);
 
   useEffect(() => {
@@ -52,11 +61,35 @@ const App: React.FC = () => {
     if (token) {
       FetchUserWithToken();
     }
-  } , [token]);
+  }, [token]);
 
   const logout = () => {
     setToken('');
   }
+  
+    const handleChange = (e:any) => {
+      setForm({
+        ...form,
+        [e.target.name]: e.target.value
+      });
+    };
+
+
+  const handleSubmit = (e:any) => {
+    e.preventDefault();
+    if (form.newPassword !== form.confirmPassword) {
+      setError('Les mots de passe ne correspondent pas');
+    } else {
+      setError('');
+      try{
+        UserService.updatePassword( form.newPassword, form.oldPassword, data.id, token!,);
+        console.log('Mot de passe mis à jour avec succès');
+      } catch (error) {
+        console.error(error);
+      }
+      setIsFormVisible(false);
+    }
+  };
 
   return (
     <Provider store={store}>
@@ -65,17 +98,21 @@ const App: React.FC = () => {
           <div className="navbar">
             <div className='navbar-title-container'>
               <div>
-                <img src={logo} className='navbar-logo' alt='logo' />
+                <div>
+                  <img src={logo} className='navbar-logo' alt='logo' />
+                </div>
                 <div className='separator'></div>
-                {token && ( 
+                {token && (
                   <div className='userImg-container'>
                     <br />
-                    <img className="user-img" src={userImage} alt="" />
-                      <h3>{data?.name}</h3>
-                    {/* <button onClick={data.id}>Modifier le compte</button> */}
+                    <div>
+                      <img className="user-img" src={userImage} alt="" />
+                      <button onClick={()=> setIsFormVisible(!isFormVisible)} className='button-edit-user'>✒️</button>
+                    </div>
+                    <h3>{data?.name}</h3>
                     <button onClick={logout}>Déconnexion</button>
                   </div>
-                 )} 
+                )}
               </div>
             </div>
             <div className='separator'></div>
@@ -84,50 +121,130 @@ const App: React.FC = () => {
                 <div className='navbar-item-icon'><p>🏠</p></div>
                 <div className='navbar-item-title'><p>Home</p></div>
               </Link>
-              <Link to="/gestion-comptes" className='navbar-item'>
-                <div className='navbar-item-icon'><p>👥</p></div>
-                <div className='navbar-item-title'><p>Gestion Comptes</p></div>
-              </Link>
-              <Link to="/rdv" className='navbar-item'>
-                <div className='navbar-item-icon'><p>📅</p></div>
-                <div className='navbar-item-title'><p>Prise de RDV</p></div>
-              </Link>
-              <Link to="/suivisuiveur" className='navbar-item'>
-                <div className='navbar-item-icon'><p>📅</p></div>
-                <div className='navbar-item-title'><p>Suivi des Alternant</p></div>
-              </Link>
-              <Link to="/relances" className='navbar-item'>
-                <div className='navbar-item-icon'><p>🔄</p></div>
-                <div className='navbar-item-title'><p>Relances</p></div>
-              </Link>
-              <Link to="/gestion-entreprise" className='navbar-item'>
-                <div className='navbar-item-icon'><p>📊</p></div>
-                <div className='navbar-item-title'><p>Gestion Entreprise</p></div>
-              </Link>
-              <Link to="/alertes" className='navbar-item'>
-                <div className='navbar-item-icon'><p>⚠️</p></div>
-                <div className='navbar-item-title'><p>Alertes Générales</p></div>
-              </Link>
-              <Link to="/suivi-entretiens" className='navbar-item'>
-                <div className='navbar-item-icon'><p>📋</p></div>
-                <div className='navbar-item-title'><p>Suivi des Entretiens</p></div>
-              </Link>
+              {(data.role === 'Admin / Directeur' || data.role === 'Responsable pédagogique') && (
+                <Link to="/gestion-comptes" className='navbar-item'>
+                  <div className='navbar-item-icon'><p>👥</p></div>
+                  <div className='navbar-item-title'><p>Gestion Comptes</p></div>
+                </Link>
+              )}
+              {(data.role === 'Suiveur' || data.role === 'Tuteur') && (
+                <Link to="/rdv" className='navbar-item'>
+                  <div className='navbar-item-icon'><p>📅</p></div>
+                  <div className='navbar-item-title'><p>Prise de RDV</p></div>
+                </Link>
+              )}
+              {data.role === 'Suiveur' && (
+                <Link to="/suivisuiveur" className='navbar-item'>
+                  <div className='navbar-item-icon'><p>📅</p></div>
+                  <div className='navbar-item-title'><p>Suivi des Alternant</p></div>
+                </Link>
+              )}
+
+              {data.role === 'Suiveur' && (
+                <Link to="/relances" className='navbar-item'>
+                  <div className='navbar-item-icon'><p>🔄</p></div>
+                  <div className='navbar-item-title'><p>Relances</p></div>
+                </Link>
+              )}
+
+              {(data.role === 'Suiveur' || data.role === 'Responsable pédagogique' || data.role === 'Admin / Directeur') && (
+                <Link to="/gestion-entreprise" className='navbar-item'>
+                  <div className='navbar-item-icon'><p>📊</p></div>
+                  <div className='navbar-item-title'><p>Gestion Entreprise</p></div>
+                </Link>
+              )}
+
+              {(data.role === 'Suiveur' || data.role === 'Responsable pédagogique' || data.role === 'Admin / Directeur') && (
+                <Link to="/alertes" className='navbar-item'>
+                  <div className='navbar-item-icon'><p>⚠️</p></div>
+                  <div className='navbar-item-title'><p>Alertes Générales</p></div>
+                </Link>
+              )}
+              {(data.role === 'Suiveur' || data.role === 'Responsable pédagogique') && (
+                <Link to="/suivi-entretiens" className='navbar-item'>
+                  <div className='navbar-item-icon'><p>📋</p></div>
+                  <div className='navbar-item-title'><p>Suivi des Entretiens</p></div>
+                </Link>
+              )}
             </div>
-          </div> 
+            {isFormVisible && (
+              <div className="modal">
+                <div className="modal-content">
+                  <span className="close-button" onClick={() => setIsFormVisible(false)}>&times;</span>
+                  <h2>Modifier Mot de Passe</h2>
+                  <form onSubmit={handleSubmit}>
+                  <div className="form-group">
+                      <label htmlFor="oldPassword">Ancien Mot de Passe :</label>
+                      <input 
+                        type="password" 
+                        id="oldPassword" 
+                        name="oldPassword" 
+                        value={form.oldPassword} 
+                        onChange={handleChange} 
+                        required 
+                      />
+                    </div>
+                    <div className="form-group">
+                      <label htmlFor="newPassword">Nouveau Mot de Passe :</label>
+                      <input 
+                        type="password" 
+                        id="newPassword" 
+                        name="newPassword" 
+                        value={form.newPassword} 
+                        onChange={handleChange} 
+                        required 
+                      />
+                    </div>
+                    <div className="form-group">
+                      <label htmlFor="confirmPassword">Confirmer Mot de Passe :</label>
+                      <input 
+                        type="password" 
+                        id="confirmPassword" 
+                        name="confirmPassword" 
+                        value={form.confirmPassword} 
+                        onChange={handleChange} 
+                        required 
+                      />
+                    </div>
+                    {error && <p className="error-message">{error}</p>}
+                    <div className="button-group">
+                      <button type="submit">Mettre à jour</button>
+                      <button type="button" onClick={() => setIsFormVisible(false)}>Annuler</button>
+                    </div>
+                  </form>
+                </div>
+              </div>
+            )}
+          </div>
           <Routes>
             <Route path="/login" element={<LoginScreen />} />
             <Route path="/home-suiveur" element={<HomeSuiveurPage />} />
-            <Route path='/rdv' element={<PriseRdvScreen />} />
-            <Route path='/suivisuiveur' element={<SuiviSuiveurScreen />} />
-            <Route path='/relances' element={<RelancesScreen />} />
-            <Route path='/gestion-entreprise' element={<GestionEntreprise />} />
-            <Route path='/gestion-comptes' element={<GestionComptesScreen />} />
-            <Route path='/alertes' element={<AlertesGeneralesScreen />} />
-            <Route path='/suivi-entretiens' element={<SuiviEntretiensScreen />} />
+            {(data.role === 'Suiveur' || data.role === 'Tuteur') && (
+              <Route path='/rdv' element={<PriseRdvScreen />} />
+            )}
+            {data.role === 'Suiveur' && (
+              <Route path='/suivisuiveur' element={<SuiviSuiveurScreen />} />
+            )}
+            {data.role === 'Suiveur' && (
+              <Route path='/relances' element={<RelancesScreen />} />
+            )}
+            {(data.role === 'Suiveur' || data.role === 'Responsable pédagogique' || data.role === 'Admin / Directeur') && (
+              <Route path='/gestion-entreprise' element={<GestionEntreprise />} />
+            )}
+            {(data.role === 'Admin / Directeur' || data.role === 'Responsable pédagogique') && (
+              <Route path='/gestion-comptes' element={<GestionComptesScreen />} />
+            )}
+            {(data.role === 'Suiveur' || data.role === 'Responsable pédagogique' || data.role === 'Admin / Directeur') && (
+              <Route path='/alertes' element={<AlertesGeneralesScreen />} />
+            )}
+            {(data.role === 'Suiveur' || data.role === 'Responsable pédagogique') && (
+              <Route path='/suivi-entretiens' element={<SuiviEntretiensScreen />} />
+            )}
+            <Route path="*" element={<Navigate to="/home-suiveur" />} />
           </Routes>
         </Router>
       ) : (
-        <LoginScreen /> 
+        <LoginScreen />
       )}
     </Provider>
   );
