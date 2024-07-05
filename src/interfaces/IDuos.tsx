@@ -1,4 +1,7 @@
 export interface IDuos {
+    Alternant? : any;
+    Tuteur? : any;
+    Suiveur? : any;
     idDuo?: number;
     idAlternant: number;
     idTuteur: number;

@@ -62,7 +62,7 @@ const GestionEntreprise: React.FC = () => {
       try {
         const results = await UserService.getAllUsers(token);
         const filteredResults = results.filter((user: IUser) =>
-          `${user.name} ${user.lastname}`.toLowerCase().includes(searchTerm.toLowerCase())
+          `${user.name} ${user.lastname} ${user.role}`.toLowerCase().includes(searchTerm.toLowerCase())
         );
         setSearchResults(filteredResults);
       } catch (error) {
@@ -231,7 +231,7 @@ const GestionEntreprise: React.FC = () => {
                     <ul>
                       {group.map((user: any) => (
                         <li key={user.id}>
-                          <span>{user.name} {user.lastname}</span>
+                          <span>{user.name} {user.lastname} ({user.role})</span>
                           <button type="button" onClick={() => handleUserRemove(user.id, groupIndex)}>
                             <span role="img" aria-label="remove">🗑️</span>
                           </button>
