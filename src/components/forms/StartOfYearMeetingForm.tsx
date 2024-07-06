@@ -1,13 +1,16 @@
 import React, { useState } from 'react';
+import MeetingService from '../../services/MeetingService';
 import IDuos from '../../interfaces/IDuos';
 
 interface StartOfYearMeetingFormProps {
   duo: IDuos;
+  token: string;
   onClose: () => void;
 }
 
-const StartOfYearMeetingForm: React.FC<StartOfYearMeetingFormProps> = ({ duo, onClose }) => {
+const StartOfYearMeetingForm: React.FC<StartOfYearMeetingFormProps> = ({ duo, token, onClose }) => {
   const [form, setForm] = useState({
+    duoId: duo.idDuo,
     studentId: duo.Alternant?.id || '',
     studentName: duo.Alternant?.name || '',
     studentFirstName: duo.Alternant?.lastname || '',
@@ -44,10 +47,14 @@ const StartOfYearMeetingForm: React.FC<StartOfYearMeetingFormProps> = ({ duo, on
     }
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log(form); // Remplacez par la logique de soumission réelle
-    onClose();
+    try {
+      await MeetingService.submitStartOfYearMeetingForm(form, token);
+      onClose();
+    } catch (error) {
+      console.error('Failed to submit start of year meeting form:', error);
+    }
   };
 
   return (

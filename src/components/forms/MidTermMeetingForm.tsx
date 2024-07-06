@@ -1,13 +1,16 @@
 import React, { useState } from 'react';
+import MeetingService from '../../services/MeetingService';
 import IDuos from '../../interfaces/IDuos';
 
 interface MidTermMeetingFormProps {
   duo: IDuos;
+  token: string;
   onClose: () => void;
 }
 
-const MidTermMeetingForm: React.FC<MidTermMeetingFormProps> = ({ duo, onClose }) => {
+const MidTermMeetingForm: React.FC<MidTermMeetingFormProps> = ({ duo, token, onClose }) => {
   const [form, setForm] = useState({
+    duoId: duo.idDuo,
     studentId: duo.Alternant?.id || '',
     studentName: duo.Alternant?.name || '',
     studentFirstName: duo.Alternant?.lastname || '',
@@ -44,10 +47,14 @@ const MidTermMeetingForm: React.FC<MidTermMeetingFormProps> = ({ duo, onClose })
     }
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log(form); // Remplacez par la logique de soumission réelle
-    onClose();
+    try {
+      await MeetingService.submitMidTermMeetingForm(form, token);
+      onClose();
+    } catch (error) {
+      console.error('Failed to submit mid term meeting form:', error);
+    }
   };
 
   return (

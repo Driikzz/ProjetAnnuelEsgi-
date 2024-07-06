@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import Modal from 'react-modal';
+import { useAsyncStorage } from '@react-native-async-storage/async-storage';
 import DuoService from '../services/DuoService';
 import UserService from '../services/UserService';
 import StartOfYearMeetingForm from '../components/forms/StartOfYearMeetingForm';
@@ -19,10 +20,30 @@ const SuiviSuiveurScreen: React.FC = () => {
   const [selectedDuo, setSelectedDuo] = useState<IDuos | null>(null);
   const [user, setUser] = useState<any>(null);
 
-  const token = localStorage.getItem('token') || '';
+  const { getItem } = useAsyncStorage('token');
+  const [token, setToken] = useState<string | null>(null);
+
+  useEffect(() => {
+    const getToken = async () => {
+      try {
+        const savedToken = await getItem();
+        if (savedToken !== null) {
+          setToken(savedToken);
+        }
+      } catch (error) {
+        console.error('Error loading token from AsyncStorage:', error);
+      }
+    };
+
+    getToken();
+  }, [getItem]);
 
   useEffect(() => {
     const fetchUserWithToken = async () => {
+      if (!token) {
+        console.error("No token available");
+        return;
+      }
       try {
         const response = await UserService.getUser(token);
         setUser(response);
@@ -31,18 +52,18 @@ const SuiviSuiveurScreen: React.FC = () => {
       }
     };
 
-    if (token) {
-      fetchUserWithToken();
-    }
+    fetchUserWithToken();
   }, [token]);
 
   useEffect(() => {
     const fetchInitialData = async () => {
+      if (!user) {
+        console.error("No user available");
+        return;
+      }
       try {
-        if (user) {
-          const duos = await DuoService.getDuosByUserId(user.id, token);
-          setDetailedDuos(duos);
-        }
+        const duos = await DuoService.getDuosByUserId(user.id, token!);
+        setDetailedDuos(duos);
       } catch (error) {
         console.error('Failed to fetch data:', error);
       } finally {
@@ -151,10 +172,23 @@ const SuiviSuiveurScreen: React.FC = () => {
         onRequestClose={closeForm}
         className="modal"
         overlayClassName="overlay"
+        contentLabel="Meeting Modal"
+        style={{
+          content: {
+            top: '50%',
+            left: '50%',
+            right: 'auto',
+            bottom: 'auto',
+            marginRight: '-50%',
+            transform: 'translate(-50%, -50%)',
+            maxHeight: '90vh',
+            overflowY: 'auto' // Pour permettre le défilement
+          },
+        }}
       >
-        {selectedMeetingType === 'trialPeriodMeeting' && <StartOfYearMeetingForm duo={selectedDuo!} onClose={closeForm} />}
-        {selectedMeetingType === 'midTermMeeting' && <MidTermMeetingForm duo={selectedDuo!} onClose={closeForm} />}
-        {selectedMeetingType === 'yearEndMeeting' && <EndOfYearMeetingForm duo={selectedDuo!} onClose={closeForm} />}
+        {selectedMeetingType === 'trialPeriodMeeting' && <StartOfYearMeetingForm duo={selectedDuo!} token={token!} onClose={closeForm} />}
+        {selectedMeetingType === 'midTermMeeting' && <MidTermMeetingForm duo={selectedDuo!} token={token!} onClose={closeForm} />}
+        {selectedMeetingType === 'yearEndMeeting' && <EndOfYearMeetingForm duo={selectedDuo!} token={token!} onClose={closeForm} />}
       </Modal>
     </div>
   );
