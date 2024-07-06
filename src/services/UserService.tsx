@@ -127,6 +127,20 @@ const UserService = {
             console.error(error);
         }
     },
+
+    async getDuoWithSuiveurIdAndPeriodMeetingFalse (suiveurId: any, token: string) {
+        try {
+            const response = await axios.get(`${URL_API}/api/duos/duos/suiveur/${suiveurId}/trialPeriodMeeting`, {
+                headers: {
+                    'Content-Type': 'application/json',
+                    Authorization: `Bearer ${token}`,
+                },
+            });
+            return response.data;
+        } catch (error) {
+            console.error(error);
+        }
+    }
         
 };
     

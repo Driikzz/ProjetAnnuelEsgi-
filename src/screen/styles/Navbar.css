@@ -4,7 +4,7 @@
     left: 0;
     top: 0;
     z-index: 1000;
-    background-color: #ceddee!important;
+    background-color: #e6ebf3!important;
     height: 100%;
     width: 250px;
     display: flex;
@@ -34,9 +34,9 @@
   .navbar-item {
     margin-top: 10px;
     display: flex;
-    justify-content: center;
     align-items: center;
     text-decoration: none;
+    gap: 20px;
     width: 100%;
     padding: 10px;
     transition: background-color 0.3s;

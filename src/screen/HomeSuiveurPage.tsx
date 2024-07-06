@@ -1,5 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import './styles/HomePage.css'; // Make sure to create and include the necessary CSS
+import UserService from '../services/UserService';
+import DuoService from '../services/DuoService';
 
 interface Alternant {
   id: number;
@@ -18,6 +20,14 @@ interface Alerte {
 }
 
 const HomeSuiveurPage: React.FC = () => {
+  const [user, setUser] = useState<any>("");
+  const [suiveurData, setSuiveurData] = useState<any>("");
+  const [duoStartPeriod, setDuoStartPeriod] = useState<any>("");
+  const [duoMiPeriod, setDuoMiPeriod] = useState<any>("");
+  const [duoEndPeriod, setDuoEndPeriod] = useState<any>("");
+  const [suiveurDuo, setSuiveurDuo] = useState<any>("");
+
+  
   const [alternants, setAlternants] = useState<Alternant[]>([
     { id: 1, name: 'Jean Dupont', status: 'En attente', trialMeeting: true, midTermMeeting: false, yearEndReview: false },
     { id: 2, name: 'Marie Durand', status: 'Validé', trialMeeting: true, midTermMeeting: true, yearEndReview: false },
@@ -34,6 +44,34 @@ const HomeSuiveurPage: React.FC = () => {
     { type: 'Problème résolu', message: 'Détails...', dateCreation: '2024-06-01', idCreateur: 1 },
     // Add more treated alerts as needed
   ]);
+
+  const token = localStorage.getItem('token') || '';
+
+  useEffect(() => {
+    const fetchData = async () => {
+      if (!token) return;
+
+      try {
+        const userResponse = await UserService.getUser(token);
+        console.log("User:", userResponse);
+        setUser(userResponse);
+
+        const suiveurResponse = await UserService.getDuoWithSuiveurIdAndPeriodMeetingFalse(userResponse.id, token);
+        console.log('Data fetched for suiveur:', suiveurResponse);
+        setDuoStartPeriod(suiveurResponse.duoTrialPeriod);
+        setDuoMiPeriod(suiveurResponse.duoMiPeriod);
+        setDuoEndPeriod(suiveurResponse.duoYearPeriod);
+
+        const suiveurAllDuo = await DuoService.getDuosByUserId(userResponse.id, token);
+        console.log('All duo fetched for suiveur:', suiveurAllDuo);
+        setSuiveurDuo(suiveurAllDuo);
+      } catch (error) {
+        console.error('Failed to fetch data:', error);
+      }
+    };
+
+    fetchData();
+  }, [token]);
 
   const totalStages = alternants.length;
   const pendingStages = alternants.filter(a => a.status === 'En attente').length;
@@ -75,18 +113,18 @@ const HomeSuiveurPage: React.FC = () => {
         <div className='all-card-board'>
           <div className='card-board-container'>
             <h4>Nombre de RDV de période d'essai restants</h4>
-            <p>{trialMeetingsRemaining}</p>
-            <p>Approx. début: {getNextPhasePeriod('trial')}</p>
+            <p>{duoStartPeriod.length}</p>
+            {/* <p>Approx. début: {getNextPhasePeriod('trial')}</p> */}
           </div>
           <div className='card-board-container'>
             <h4>Nombre de RDV de mi-parcours restants</h4>
-            <p>{midTermMeetingsRemaining}</p>
-            <p>Approx. début: {getNextPhasePeriod('midTerm')}</p>
+            <p>{duoMiPeriod.length}</p>
+            {/* <p>Approx. début: {getNextPhasePeriod('midTerm')}</p> */}
           </div>
           <div className='card-board-container'>
-            <h4>Nombre de comptes rendus de fin d'année restants</h4>
-            <p>{yearEndReviewsRemaining}</p>
-            <p>Approx. début: {getNextPhasePeriod('yearEnd')}</p>
+            <h4>Nombre de RDV finnaux restants</h4>
+            <p>{duoEndPeriod.length}</p>
+            {/* <p>Approx. début: {getNextPhasePeriod('yearEnd')}</p> */}
           </div>
         </div>
 
@@ -95,14 +133,14 @@ const HomeSuiveurPage: React.FC = () => {
             <h3>Liste des alternants</h3>
           </div>
           <div className='all-alternant-liste'>
-            {alternants.map(alternant => (
-              <div key={alternant.id} className='alternant-item-container'>
+            {suiveurDuo && suiveurDuo.map((suiveur:any) => (
+              <div key={suiveur.id} className='alternant-item-container'>
                 <div className='alternant-item'>
-                  <h4>{alternant.name}</h4>
-                  <p>Status: {alternant.status}</p>
-                  <p>Trial Period Meeting: {alternant.trialMeeting ? '✔️' : '❌'}</p>
-                  <p>Mid-Term Meeting: {alternant.midTermMeeting ? '✔️' : '❌'}</p>
-                  <p>Year-End Review: {alternant.yearEndReview ? '✔️' : '❌'}</p>
+                  <h4>{suiveur.Alternant.name}</h4>
+                  <p>Status: {(suiveur.trialPeriodMeeting && suiveur.midTermMeeting && suiveur.yearEndMeeting) ? 'terminée' : 'en cours'}</p>
+                  <p>Trial Period Meeting: {suiveur.trialPeriodMeeting ? '✔️' : '❌'}</p>
+                  <p>Mid-Term Meeting: {suiveur.midTermMeeting ? '✔️' : '❌'}</p>
+                  <p>Year-End Review: {suiveur.yearEndMeeting ? '✔️' : '❌'}</p>
                 </div>
               </div>
             ))}
