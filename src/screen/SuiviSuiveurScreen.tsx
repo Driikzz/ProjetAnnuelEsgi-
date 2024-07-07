@@ -7,6 +7,7 @@ import StartOfYearMeetingForm from '../components/forms/StartOfYearMeetingForm';
 import MidTermMeetingForm from '../components/forms/MidTermMeetingForm';
 import EndOfYearMeetingForm from '../components/forms/EndOfYearMeetingForm';
 import IDuos from '../interfaces/IDuos';
+import MeetingService from '../services/MeetingService'; // Ensure this matches the file name exactly
 import './styles/SuiviSuiveur.css';
 
 Modal.setAppElement('#root');  // Assurez-vous que cet élément correspond à l'ID de l'élément racine de votre application
@@ -19,6 +20,7 @@ const SuiviSuiveurScreen: React.FC = () => {
   const [selectedMeetingType, setSelectedMeetingType] = useState<string | null>(null);
   const [selectedDuo, setSelectedDuo] = useState<IDuos | null>(null);
   const [user, setUser] = useState<any>(null);
+  const [meetingData, setMeetingData] = useState<any>(null);
 
   const { getItem } = useAsyncStorage('token');
   const [token, setToken] = useState<string | null>(null);
@@ -76,14 +78,29 @@ const SuiviSuiveurScreen: React.FC = () => {
     }
   }, [user, token]);
 
-  const openForm = (duo: IDuos, meetingType: string) => {
+  const openForm = async (duo: IDuos, meetingType: string) => {
     setSelectedDuo(duo);
     setSelectedMeetingType(meetingType);
+    try {
+      let meetingData;
+      if (meetingType === 'trialPeriodMeeting') {
+        meetingData = await MeetingService.getStartOfYearMeeting(duo.Alternant.id.toString(), token!);
+      } else if (meetingType === 'midTermMeeting') {
+        meetingData = await MeetingService.getMidTermMeeting(duo.Alternant.id.toString(), token!);
+      } else if (meetingType === 'yearEndMeeting') {
+        meetingData = await MeetingService.getEndOfYearMeeting(duo.Alternant.id.toString(), token!);
+      }
+      setMeetingData(meetingData);
+      console.log('Fetched meeting data:', meetingData);
+    } catch (error) {
+      console.error(`Failed to fetch ${meetingType} data:`, error);
+    }
   };
 
   const closeForm = () => {
     setSelectedDuo(null);
     setSelectedMeetingType(null);
+    setMeetingData(null);
   };
 
   const toggleEnterprise = (enterpriseName: string) => {
@@ -186,9 +203,9 @@ const SuiviSuiveurScreen: React.FC = () => {
           },
         }}
       >
-        {selectedMeetingType === 'trialPeriodMeeting' && <StartOfYearMeetingForm duo={selectedDuo!} token={token!} onClose={closeForm} />}
-        {selectedMeetingType === 'midTermMeeting' && <MidTermMeetingForm duo={selectedDuo!} token={token!} onClose={closeForm} />}
-        {selectedMeetingType === 'yearEndMeeting' && <EndOfYearMeetingForm duo={selectedDuo!} token={token!} onClose={closeForm} />}
+        {selectedMeetingType === 'trialPeriodMeeting' && <StartOfYearMeetingForm duo={selectedDuo!} token={token!} onClose={closeForm} meetingData={meetingData} />}
+        {selectedMeetingType === 'midTermMeeting' && <MidTermMeetingForm duo={selectedDuo!} token={token!} onClose={closeForm} meetingData={meetingData} />}
+        {selectedMeetingType === 'yearEndMeeting' && <EndOfYearMeetingForm duo={selectedDuo!} token={token!} onClose={closeForm} meetingData={meetingData} />}
       </Modal>
     </div>
   );

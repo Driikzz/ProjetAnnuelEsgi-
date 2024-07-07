@@ -1,17 +1,17 @@
-import React, { useState } from 'react';
-import MeetingService from '../../services/MeetingService';
+import React, { useState, useEffect } from 'react';
 import IDuos from '../../interfaces/IDuos';
+import MeetingService from '../../services/MeetingService';
 
 interface EndOfYearMeetingFormProps {
   duo: IDuos;
   token: string;
   onClose: () => void;
+  meetingData: any; // Ajoutez cette propriété
 }
 
-const EndOfYearMeetingForm: React.FC<EndOfYearMeetingFormProps> = ({ duo, token, onClose }) => {
+const EndOfYearMeetingForm: React.FC<EndOfYearMeetingFormProps> = ({ duo, token, onClose, meetingData }) => {
   const [form, setForm] = useState({
-    duoId: duo.idDuo,
-    studentId: duo.Alternant?.id || '',
+    studentId: duo.Alternant?.id.toString() || '',
     studentName: duo.Alternant?.name || '',
     studentFirstName: duo.Alternant?.lastname || '',
     enterpriseName: duo.enterpriseName || '',
@@ -30,6 +30,12 @@ const EndOfYearMeetingForm: React.FC<EndOfYearMeetingFormProps> = ({ duo, token,
     followUpComment: ''
   });
 
+  useEffect(() => {
+    if (meetingData) {
+      setForm(meetingData);
+    }
+  }, [meetingData]);
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value, type } = e.target;
     if (type === 'checkbox') {
@@ -37,6 +43,11 @@ const EndOfYearMeetingForm: React.FC<EndOfYearMeetingFormProps> = ({ duo, token,
       setForm(prevForm => ({
         ...prevForm,
         [name]: checked
+      }));
+    } else if (type === 'number') {
+      setForm(prevForm => ({
+        ...prevForm,
+        [name]: Number(value)
       }));
     } else {
       setForm(prevForm => ({
@@ -49,10 +60,10 @@ const EndOfYearMeetingForm: React.FC<EndOfYearMeetingFormProps> = ({ duo, token,
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      await MeetingService.submitEndOfYearMeetingForm(form, token);
+      await MeetingService.submitEndOfYearMeetingForm(form, duo.idDuo!, token);
       onClose();
     } catch (error) {
-      console.error('Failed to submit end of year meeting form:', error);
+      console.error('Failed to submit form:', error);
     }
   };
 
@@ -110,11 +121,11 @@ const EndOfYearMeetingForm: React.FC<EndOfYearMeetingFormProps> = ({ duo, token,
         <textarea name="improvementAxes" value={form.improvementAxes} onChange={handleChange} required />
       </label>
       <label>
-        Points forts:
+        Forces:
         <textarea name="strengths" value={form.strengths} onChange={handleChange} required />
       </label>
       <label>
-        Sujet de mémoire (si applicable):
+        Sujet de la thèse:
         <textarea name="thesisSubject" value={form.thesisSubject} onChange={handleChange} />
       </label>
       <label>
@@ -122,11 +133,11 @@ const EndOfYearMeetingForm: React.FC<EndOfYearMeetingFormProps> = ({ duo, token,
         <input type="checkbox" name="recruitmentPlans" checked={form.recruitmentPlans} onChange={handleChange} />
       </label>
       <label>
-        Poursuite d'études:
+        Poursuite des études:
         <input type="checkbox" name="continuationOfStudies" checked={form.continuationOfStudies} onChange={handleChange} />
       </label>
       <label>
-        Commentaire sur le suivi:
+        Commentaire du suivi:
         <textarea name="followUpComment" value={form.followUpComment} onChange={handleChange} required />
       </label>
       <button type="submit">Soumettre</button>

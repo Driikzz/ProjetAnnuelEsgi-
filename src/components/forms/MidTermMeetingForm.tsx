@@ -1,17 +1,17 @@
-import React, { useState } from 'react';
-import MeetingService from '../../services/MeetingService';
+import React, { useState, useEffect } from 'react';
 import IDuos from '../../interfaces/IDuos';
+import MeetingService from '../../services/MeetingService';
 
 interface MidTermMeetingFormProps {
   duo: IDuos;
   token: string;
   onClose: () => void;
+  meetingData: any; // Ajoutez cette propriété
 }
 
-const MidTermMeetingForm: React.FC<MidTermMeetingFormProps> = ({ duo, token, onClose }) => {
+const MidTermMeetingForm: React.FC<MidTermMeetingFormProps> = ({ duo, token, onClose, meetingData }) => {
   const [form, setForm] = useState({
-    duoId: duo.idDuo,
-    studentId: duo.Alternant?.id || '',
+    studentId: duo.Alternant?.id.toString() || '',
     studentName: duo.Alternant?.name || '',
     studentFirstName: duo.Alternant?.lastname || '',
     enterpriseName: duo.enterpriseName || '',
@@ -31,6 +31,12 @@ const MidTermMeetingForm: React.FC<MidTermMeetingFormProps> = ({ duo, token, onC
     recruitmentPlans: false
   });
 
+  useEffect(() => {
+    if (meetingData) {
+      setForm(meetingData);
+    }
+  }, [meetingData]);
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value, type } = e.target;
     if (type === 'checkbox') {
@@ -38,6 +44,11 @@ const MidTermMeetingForm: React.FC<MidTermMeetingFormProps> = ({ duo, token, onC
       setForm(prevForm => ({
         ...prevForm,
         [name]: checked
+      }));
+    } else if (type === 'number') {
+      setForm(prevForm => ({
+        ...prevForm,
+        [name]: Number(value)
       }));
     } else {
       setForm(prevForm => ({
@@ -50,10 +61,10 @@ const MidTermMeetingForm: React.FC<MidTermMeetingFormProps> = ({ duo, token, onC
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      await MeetingService.submitMidTermMeetingForm(form, token);
+      await MeetingService.submitMidTermMeetingForm(form, duo.idDuo!, token);
       onClose();
     } catch (error) {
-      console.error('Failed to submit mid term meeting form:', error);
+      console.error('Failed to submit form:', error);
     }
   };
 
@@ -111,11 +122,11 @@ const MidTermMeetingForm: React.FC<MidTermMeetingFormProps> = ({ duo, token, onC
         <input type="number" name="perseveranceRating" value={form.perseveranceRating} onChange={handleChange} required />
       </label>
       <label>
-        Force de proposition:
+        Proactivité:
         <input type="number" name="proactivityRating" value={form.proactivityRating} onChange={handleChange} required />
       </label>
       <label>
-        Projets pour le deuxième semestre:
+        Projets pour le second semestre:
         <textarea name="projectsForSecondSemester" value={form.projectsForSecondSemester} onChange={handleChange} required />
       </label>
       <label>
@@ -123,11 +134,11 @@ const MidTermMeetingForm: React.FC<MidTermMeetingFormProps> = ({ duo, token, onC
         <textarea name="improvementAxes" value={form.improvementAxes} onChange={handleChange} required />
       </label>
       <label>
-        Points forts:
+        Forces:
         <textarea name="strengths" value={form.strengths} onChange={handleChange} required />
       </label>
       <label>
-        Sujet de mémoire (si applicable):
+        Sujet de la thèse:
         <textarea name="thesisSubject" value={form.thesisSubject} onChange={handleChange} />
       </label>
       <label>
