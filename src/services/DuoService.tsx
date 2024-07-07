@@ -85,7 +85,35 @@ const DuoService = {
         } catch (error) {
             console.error(error);
         }
-    }
+    },
+
+    async getDuoByEntrepriseId(id: number, token: string) {
+        try {
+            const response = await axios.get(`${URL_API}/api/duos/entreprise/${id}/duos`, {
+                headers: {
+                    'Content-Type': 'application/json',
+                    Authorization: `Bearer ${token}`,
+                },
+            });
+            return response.data;
+        } catch (error) {
+            console.error(error);
+        }
+    },
+
+    async updateDuoUsers (id: number, duo: any, token: string) {
+        try {
+            const response = await axios.put(`${URL_API}/api/duos/${id}/users`, duo, {
+                headers: {
+                    'Content-Type': 'application/json',
+                    Authorization: `Bearer ${token}`,
+                },
+            });
+            return response.data;
+        } catch (error) {
+            console.error(error);
+        }
+    },
 };
 
 export default DuoService;
