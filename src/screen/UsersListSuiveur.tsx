@@ -54,7 +54,8 @@ const GestionComptesScreenSuiveur: React.FC = () => {
     const filteredUsers = usersByRole.filter(user =>
       user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       user.lastname.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      user.email.toLowerCase().includes(searchTerm.toLowerCase())
+      user.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      user.tag && Array.isArray(user.tag) && user.tag.join(',').toLowerCase().includes(searchTerm.toLowerCase())
     );
 
     return (

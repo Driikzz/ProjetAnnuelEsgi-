@@ -9,6 +9,7 @@ import { useAsyncStorage } from '@react-native-async-storage/async-storage';
 import DuoService from '../services/DuoService';
 
 const GestionEntreprise: React.FC = () => {
+  
   const initialFormState: IEntreprise = {
     id: 0,
     name: '',
@@ -35,6 +36,7 @@ const GestionEntreprise: React.FC = () => {
   const [alternants, setAlternants] = useState<IUser[]>([]);
   const [tuteurs, setTuteurs] = useState<IUser[]>([]);
   const [suiveurs, setSuiveurs] = useState<IUser[]>([]);
+  const [newDuo, setNewDuo] = useState({ idAlternant: '', idTuteur: '', idSuiveur: '' });
 
   const [selectedDuo, setSelectedDuo] = useState<any>(null);
 
@@ -260,6 +262,35 @@ const GestionEntreprise: React.FC = () => {
     });
 };
 
+const handleNewDuoChange = (field :any, value:any) => {
+  setNewDuo({
+      ...newDuo,
+      [field]: value
+  });
+};
+
+const handleCreateDuo = () => {
+  // Fonction pour créer un nouveau duo
+    const createDuo = ({
+      ...newDuo,
+      enterpriseName : entreprises[0]?.name,
+      isEnterpriseRecruit: false,
+      trialPeriodMeeting: false,
+      midTermMeeting: false,
+      yearEndMeeting: false,
+      creationDate: new Date()
+    });
+
+    try{
+      DuoService.createDuo(createDuo, token);
+      console.log('Duo créé:', createDuo);
+      closeDuoModal();
+    } catch (error) {
+      console.error('Erreur lors de la création du duo:', error);
+    }
+  };
+
+
   return (
     <div className="container">
       <h1>Gestion des Entreprises</h1>
@@ -350,7 +381,7 @@ const GestionEntreprise: React.FC = () => {
                         <span className="close" onClick={closeDuoModal}>&times;</span>
                         <h2>Modifier les duos</h2>
                         <ul>
-                            {duoEntreprise.map((duo:any, index:any) => (
+                            {duoEntreprise.map((duo :any , index:any ) => (
                                 <li key={index}>
                                     {selectedDuo && selectedDuo.idDuo === duo.idDuo ? (
                                         <form>
@@ -391,7 +422,6 @@ const GestionEntreprise: React.FC = () => {
                                         </form>
                                     ) : (
                                         <div>
-                                            <h3>Duo {index +1}</h3>
                                             Alternant: {getUserNameById(duo.idAlternant)}, Tuteur: {getUserNameById(duo.idTuteur)}, Suiveur: {getUserNameById(duo.idSuiveur)}
                                             <button onClick={() => setSelectedDuo(duo)}>Modifier</button>
                                         </div>
@@ -399,6 +429,47 @@ const GestionEntreprise: React.FC = () => {
                                 </li>
                             ))}
                         </ul>
+
+                        <h2>Créer un nouveau duo</h2>
+                        <form>
+                            <label>
+                                Alternant:
+                                <select
+                                    value={newDuo.idAlternant}
+                                    onChange={(e) => handleNewDuoChange('idAlternant', parseInt(e.target.value))}>
+                                    <option value="">Sélectionner un alternant</option>
+                                    {alternants.map(user => (
+                                        <option key={user.id} value={user.id}>{user.name} {user.lastname}</option>
+                                    ))}
+                                </select>
+                            </label>
+
+                            <label>
+                                Tuteur:
+                                <select
+                                    value={newDuo.idTuteur}
+                                    onChange={(e) => handleNewDuoChange('idTuteur', parseInt(e.target.value))}>
+                                    <option value="">Sélectionner un tuteur</option>
+                                    {tuteurs.map(user => (
+                                        <option key={user.id} value={user.id}>{user.name} {user.lastname}</option>
+                                    ))}
+                                </select>
+                            </label>
+
+                            <label>
+                                Suiveur:
+                                <select
+                                    value={newDuo.idSuiveur}
+                                    onChange={(e) => handleNewDuoChange('idSuiveur', parseInt(e.target.value))}>
+                                    <option value="">Sélectionner un suiveur</option>
+                                    {suiveurs.map(user => (
+                                        <option key={user.id} value={user.id}>{user.name} {user.lastname}</option>
+                                    ))}
+                                </select>
+                            </label>
+
+                            <button type="button" onClick={handleCreateDuo}>Créer le duo</button>
+                        </form>
                     </div>
                 </div>
             )}
