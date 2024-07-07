@@ -109,17 +109,17 @@ h1 {
   align-items: center;
 }
 
-.modal {
+/* .modal {
   position: relative;
   background: white;
   padding: 20px;
   border-radius: 8px;
   max-width: 600px;
   width: 100%;
-  max-height: 90vh; /* Limite la hauteur pour permettre le défilement */
-  overflow-y: auto; /* Ajoute un défilement vertical si le contenu dépasse la hauteur maximale */
+  max-height: 90vh; 
+  overflow-y: auto;
   color:#ffffff ;
-}
+} */
 
 .popup-inner {
   background-color: #fff;

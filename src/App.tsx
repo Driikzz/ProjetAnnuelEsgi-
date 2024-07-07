@@ -18,6 +18,7 @@ import { Provider } from 'react-redux';
 import store from './store/store';
 import { useAsyncStorage } from '@react-native-async-storage/async-storage';
 import UserService from './services/UserService';
+import GestionComptesScreenSuiveur from './screen/UsersListSuiveur';
 
 const App: React.FC = () => {
   const [token, setToken] = useState('');
@@ -139,6 +140,13 @@ const App: React.FC = () => {
                   <div className='navbar-item-title'><p>Suivi des Alternant</p></div>
                 </Link>
               )}
+              
+              {data.role === 'Suiveur' && (
+                <Link to='/gestion-comptes-suiveurs' className='navbar-item'>
+                  <div className='navbar-item-icon'><p>👥</p></div>
+                  <div className='navbar-item-title'><p>Contact Tuteurs</p></div>
+                </Link>
+              )}
 
               {data.role === 'Suiveur' && (
                 <Link to="/relances" className='navbar-item'>
@@ -240,6 +248,10 @@ const App: React.FC = () => {
             {(data.role === 'Suiveur' || data.role === 'Responsable pédagogique') && (
               <Route path='/suivi-entretiens' element={<SuiviEntretiensScreen />} />
             )}
+            {(data.role === 'Suiveur') && (
+              <Route path='/gestion-comptes-suiveurs' element={<GestionComptesScreenSuiveur />} />
+            )}
+
             <Route path="*" element={<Navigate to="/home-suiveur" />} />
           </Routes>
         </Router>
