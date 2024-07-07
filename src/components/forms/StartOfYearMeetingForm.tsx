@@ -1,17 +1,17 @@
-import React, { useState } from 'react';
-import MeetingService from '../../services/MeetingService';
+import React, { useState, useEffect } from 'react';
 import IDuos from '../../interfaces/IDuos';
+import MeetingService from '../../services/MeetingService';
 
 interface StartOfYearMeetingFormProps {
   duo: IDuos;
   token: string;
   onClose: () => void;
+  meetingData: any; // Ajoutez cette propriété
 }
 
-const StartOfYearMeetingForm: React.FC<StartOfYearMeetingFormProps> = ({ duo, token, onClose }) => {
+const StartOfYearMeetingForm: React.FC<StartOfYearMeetingFormProps> = ({ duo, token, onClose, meetingData }) => {
   const [form, setForm] = useState({
-    duoId: duo.idDuo,
-    studentId: duo.Alternant?.id || '',
+    studentId: duo.Alternant?.id.toString() || '',
     studentName: duo.Alternant?.name || '',
     studentFirstName: duo.Alternant?.lastname || '',
     enterpriseName: duo.enterpriseName || '',
@@ -31,6 +31,12 @@ const StartOfYearMeetingForm: React.FC<StartOfYearMeetingFormProps> = ({ duo, to
     improvementAxes: ''
   });
 
+  useEffect(() => {
+    if (meetingData) {
+      setForm(meetingData);
+    }
+  }, [meetingData]);
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value, type } = e.target;
     if (type === 'checkbox') {
@@ -38,6 +44,11 @@ const StartOfYearMeetingForm: React.FC<StartOfYearMeetingFormProps> = ({ duo, to
       setForm(prevForm => ({
         ...prevForm,
         [name]: checked
+      }));
+    } else if (type === 'number' || ['punctualityRating', 'integrationRating', 'organizationRating', 'communicationRating', 'teamworkRating'].includes(name)) {
+      setForm(prevForm => ({
+        ...prevForm,
+        [name]: Number(value)
       }));
     } else {
       setForm(prevForm => ({
@@ -50,10 +61,10 @@ const StartOfYearMeetingForm: React.FC<StartOfYearMeetingFormProps> = ({ duo, to
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      await MeetingService.submitStartOfYearMeetingForm(form, token);
+      await MeetingService.submitStartOfYearMeetingForm(form, duo.idDuo!, token);
       onClose();
     } catch (error) {
-      console.error('Failed to submit start of year meeting form:', error);
+      console.error('Failed to submit form:', error);
     }
   };
 
