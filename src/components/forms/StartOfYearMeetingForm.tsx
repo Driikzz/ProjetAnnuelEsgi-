@@ -28,7 +28,8 @@ const StartOfYearMeetingForm: React.FC<StartOfYearMeetingFormProps> = ({ duo, to
     communicationRating: 0,
     teamworkRating: 0,
     projectsForFirstSemester: '',
-    improvementAxes: ''
+    improvementAxes: '' ,
+    duoId: duo.idDuo || '' // Assurez-vous que le duoId est inclus
   });
 
   useEffect(() => {

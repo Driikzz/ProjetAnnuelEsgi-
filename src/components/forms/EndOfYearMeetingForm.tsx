@@ -27,7 +27,8 @@ const EndOfYearMeetingForm: React.FC<EndOfYearMeetingFormProps> = ({ duo, token,
     thesisSubject: '',
     recruitmentPlans: false,
     continuationOfStudies: false,
-    followUpComment: ''
+    followUpComment: '',
+    duoId: duo.idDuo || '' // Assurez-vous que le duoId est inclus 
   });
 
   useEffect(() => {

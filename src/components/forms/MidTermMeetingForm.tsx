@@ -28,7 +28,8 @@ const MidTermMeetingForm: React.FC<MidTermMeetingFormProps> = ({ duo, token, onC
     improvementAxes: '',
     strengths: '',
     thesisSubject: '',
-    recruitmentPlans: false
+    recruitmentPlans: false ,
+    duoId: duo.idDuo || '' // Assurez-vous que le duoId est inclus
   });
 
   useEffect(() => {
