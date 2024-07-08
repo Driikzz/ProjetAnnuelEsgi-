@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import './styles/HomePage.css'; // Make sure to create and include the necessary CSS
 import UserService from '../services/UserService';
 import DuoService from '../services/DuoService';
+import ExtractService from '../services/Extract';
 
 interface Alternant {
   id: number;
@@ -102,6 +103,26 @@ const HomeSuiveurPage: React.FC = () => {
     return approximatePeriod;
   };
 
+
+  const extractData = async () => {
+    const response: any = await ExtractService.extractData(token);
+    
+    // Vérifier le type de response
+    console.log(response);
+    
+    if (response instanceof Response) {
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'users.xlsx';
+      a.click();
+    } else {
+      console.error("Le type de response n'est pas Response");
+    }
+  };
+  
+
   return (
     <div className='container'>
       <div>
@@ -145,6 +166,7 @@ const HomeSuiveurPage: React.FC = () => {
               </div>
             ))}
           </div>
+          <button onClick={extractData}>Extract data</button>
         </div>
 
         <div className='recent-alerts'>
