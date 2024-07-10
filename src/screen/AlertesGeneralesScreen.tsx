@@ -1,55 +1,28 @@
 import React, { useState, useEffect } from 'react';
 import './styles/AlertesGeneralesScreen.css';
+import AlertesService from '../services/alertesService';
+import DuoService from '../services/DuoService';
+import UserService from '../services/UserService';
+import { useAsyncStorage } from '@react-native-async-storage/async-storage';
 
 interface Notification {
-  ID_Notification: number;
-  Message: string;
-  DateEnvoi: string;
-  ID_Alternant: number;
-  ID_Suiveur: number;
-  ID_Tuteur: number;
+  id: number;
+  message: string;
+  datedeCreation: string;
+  alternantId: number;
+  duoId: number;
+  traitantId: number;
+  typeAlerte: string;
+  alternant: Person | null;
+  suiveur: Person | null;
+  tuteur: Person | null;
 }
 
 interface Person {
-  ID: number;
-  Name: string;
+  id: number;
+  name: string;
+  lastname: string;
 }
-
-const fetchNotifications = async (): Promise<Notification[]> => {
-  return [
-    { ID_Notification: 1, Message: 'Intention de poursuivre les études', DateEnvoi: '2024-05-20', ID_Alternant: 1, ID_Suiveur: 2, ID_Tuteur: 3 },
-    { ID_Notification: 2, Message: 'Recrutement par Entreprise X', DateEnvoi: '2024-05-22', ID_Alternant: 4, ID_Suiveur: 5, ID_Tuteur: 6 },
-    { ID_Notification: 3, Message: 'Offre de stage', DateEnvoi: '2024-05-23', ID_Alternant: 7, ID_Suiveur: 8, ID_Tuteur: 9 },
-    // Add more notifications as needed
-  ];
-};
-
-const fetchAlternants = async (): Promise<Person[]> => {
-  return [
-    { ID: 1, Name: 'John Doe' },
-    { ID: 4, Name: 'Alice Johnson' },
-    { ID: 7, Name: 'Robert Brown' },
-    // Add more alternants as needed
-  ];
-};
-
-const fetchSuiveurs = async (): Promise<Person[]> => {
-  return [
-    { ID: 2, Name: 'Jane Smith' },
-    { ID: 5, Name: 'Michael White' },
-    { ID: 8, Name: 'Emily Davis' },
-    // Add more suiveurs as needed
-  ];
-};
-
-const fetchTuteurs = async (): Promise<Person[]> => {
-  return [
-    { ID: 3, Name: 'Paul Green' },
-    { ID: 6, Name: 'Laura Black' },
-    { ID: 9, Name: 'William Red' },
-    // Add more tuteurs as needed
-  ];
-};
 
 const AlertesGeneralesScreen: React.FC = () => {
   const [notifications, setNotifications] = useState<Notification[]>([]);
@@ -57,29 +30,38 @@ const AlertesGeneralesScreen: React.FC = () => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [showPopup, setShowPopup] = useState(false);
   const [selectedNotification, setSelectedNotification] = useState<Notification | null>(null);
-  const [alternants, setAlternants] = useState<Person[]>([]);
-  const [suiveurs, setSuiveurs] = useState<Person[]>([]);
-  const [tuteurs, setTuteurs] = useState<Person[]>([]);
   const [newNotifications, setNewNotifications] = useState(2); // Example of new notifications since last login
+  const { getItem } = useAsyncStorage('token');
+  const [token, setToken] = useState<string>('');
+
+  useEffect(() => {
+    const fetchToken = async () => {
+      const savedToken = await getItem();
+      if (savedToken) {
+        setToken(savedToken);
+      }
+    };
+    fetchToken();
+  }, [getItem]);
 
   useEffect(() => {
     const loadNotifications = async () => {
-      const fetchedNotifications = await fetchNotifications();
-      setNotifications(fetchedNotifications);
-    };
-
-    const loadPersons = async () => {
-      const fetchedAlternants = await fetchAlternants();
-      const fetchedSuiveurs = await fetchSuiveurs();
-      const fetchedTuteurs = await fetchTuteurs();
-      setAlternants(fetchedAlternants);
-      setSuiveurs(fetchedSuiveurs);
-      setTuteurs(fetchedTuteurs);
+      if (token) {
+        const fetchedNotifications = await AlertesService.getAllAlertes(token);
+        for (let notification of fetchedNotifications) {
+          const duo = await DuoService.getDuoById(notification.duoId, token);
+          if (duo) {
+            notification.alternant = await UserService.getUserById(duo.idAlternant, token);
+            notification.suiveur = await UserService.getUserById(duo.idSuiveur, token);
+            notification.tuteur = await UserService.getUserById(duo.idTuteur, token);
+          }
+        }
+        setNotifications(fetchedNotifications);
+      }
     };
 
     loadNotifications();
-    loadPersons();
-  }, []);
+  }, [token]);
 
   const handlePrevClick = () => {
     setCurrentIndex((prevIndex) => (prevIndex === 0 ? notifications.length - 1 : prevIndex - 1));
@@ -90,9 +72,9 @@ const AlertesGeneralesScreen: React.FC = () => {
   };
 
   const handleDismiss = (id: number) => {
-    const dismissedNotification = notifications.find((notification) => notification.ID_Notification === id);
+    const dismissedNotification = notifications.find((notification) => notification.id === id);
     if (dismissedNotification) {
-      setNotifications(notifications.filter((notification) => notification.ID_Notification !== id));
+      setNotifications(notifications.filter((notification) => notification.id !== id));
       setTreatedNotifications([...treatedNotifications, dismissedNotification]);
     }
   };
@@ -105,9 +87,29 @@ const AlertesGeneralesScreen: React.FC = () => {
     setSelectedNotification(null);
   };
 
-  const getPersonName = (id: number, persons: Person[]) => {
-    const person = persons.find((p) => p.ID === id);
-    return person ? person.Name : 'Unknown';
+  const getPersonName = (person: Person | null) => {
+    return person ? `${person.name} ${person.lastname}` : 'Inconnu';
+  };
+
+  const getAlertMessage = (notification: Notification) => {
+    switch (notification.typeAlerte) {
+      case 'RECRUITMENT_PLANS_ALERT':
+        return `L'alternant ${getPersonName(notification.alternant)} a des plans de recrutement.`;
+      case 'CONTINUATION_OF_STUDIES_ALERT':
+        return `L'alternant ${getPersonName(notification.alternant)} prévoit de continuer ses études.`;
+      case 'PROACTIVITY_ALERT':
+        return `L'alternant ${getPersonName(notification.alternant)} a un score de proactivité bas.`;
+      case 'TEAMWORK_ALERT':
+        return `L'alternant ${getPersonName(notification.alternant)} a un score de travail d'équipe bas.`;
+      case 'START_OF_YEAR':
+        return `L'année de l'alternant ${getPersonName(notification.alternant)} a bien commencé.`;
+      case 'MID_TERM':
+        return `L'évaluation de mi-parcours de l'alternant ${getPersonName(notification.alternant)} est en cours.`;
+      case 'END_OF_YEAR':
+        return `L'année de l'alternant ${getPersonName(notification.alternant)} est terminée.`;
+      default:
+        return notification.message;
+    }
   };
 
   const visibleNotifications = notifications.slice(currentIndex, currentIndex + 3).concat(notifications.slice(0, Math.max(0, currentIndex + 3 - notifications.length)));
@@ -129,14 +131,14 @@ const AlertesGeneralesScreen: React.FC = () => {
             <button onClick={handlePrevClick} className="arrowButton">‹</button>
             <div className="cards">
               {visibleNotifications.map((notification) => (
-                <div key={notification.ID_Notification} className="card">
+                <div key={notification.id} className="card">
                   <div className="cardHeader">
-                    <strong>{getPersonName(notification.ID_Alternant, alternants)}</strong>
-                    <span>{notification.DateEnvoi}</span>
+                    <strong>{getPersonName(notification.alternant)}</strong>
+                    <span>{new Date(notification.datedeCreation).toLocaleDateString()}</span>
                   </div>
-                  <h3 className="cardTitle">{notification.Message}</h3>
+                  <h3 className="cardTitle">{getAlertMessage(notification)}</h3>
                   <button onClick={() => handleShowDetails(notification)} className="detailsButton">Plus d'info</button>
-                  <button onClick={() => handleDismiss(notification.ID_Notification)} className="dismissButton">Marquer comme traité</button>
+                  <button onClick={() => handleDismiss(notification.id)} className="dismissButton">Marquer comme traité</button>
                 </div>
               ))}
             </div>
@@ -148,12 +150,12 @@ const AlertesGeneralesScreen: React.FC = () => {
           <h2 className="subHeader">Alertes Traitées</h2>
           <div className="treatedContainer">
             {treatedNotifications.map((notification) => (
-              <div key={notification.ID_Notification} className="card treatedCard">
+              <div key={notification.id} className="card treatedCard">
                 <div className="cardHeader">
-                  <strong>{getPersonName(notification.ID_Alternant, alternants)}</strong>
-                  <span>{notification.DateEnvoi}</span>
+                  <strong>{getPersonName(notification.alternant)}</strong>
+                  <span>{new Date(notification.datedeCreation).toLocaleDateString()}</span>
                 </div>
-                <h3 className="cardTitle">{notification.Message}</h3>
+                <h3 className="cardTitle">{getAlertMessage(notification)}</h3>
                 <button onClick={() => handleShowDetails(notification)} className="detailsButton">Plus d'info</button>
               </div>
             ))}
@@ -167,8 +169,8 @@ const AlertesGeneralesScreen: React.FC = () => {
               <button onClick={() => setShowPopup(false)} className="closeButton">Fermer</button>
               <ul className="popupList">
                 {notifications.map((notification) => (
-                  <li key={notification.ID_Notification} className="popupListItem">
-                    <strong>{getPersonName(notification.ID_Alternant, alternants)}</strong> - {notification.Message} ({notification.DateEnvoi})
+                  <li key={notification.id} className="popupListItem">
+                    <strong>{getPersonName(notification.alternant)}</strong> - {getAlertMessage(notification)} ({new Date(notification.datedeCreation).toLocaleDateString()})
                   </li>
                 ))}
               </ul>
@@ -182,19 +184,19 @@ const AlertesGeneralesScreen: React.FC = () => {
               <h2>Détails de l'Alerte</h2>
               <button onClick={handleCloseDetails} className="closeButton">Fermer</button>
               <div>
-                <strong>Alternant: </strong>{getPersonName(selectedNotification.ID_Alternant, alternants)}
+                <strong>Alternant: </strong>{getPersonName(selectedNotification.alternant)}
               </div>
               <div>
-                <strong>Suiveur: </strong>{getPersonName(selectedNotification.ID_Suiveur, suiveurs)}
+                <strong>Suiveur: </strong>{getPersonName(selectedNotification.suiveur)}
               </div>
               <div>
-                <strong>Tuteur: </strong>{getPersonName(selectedNotification.ID_Tuteur, tuteurs)}
+                <strong>Tuteur: </strong>{getPersonName(selectedNotification.tuteur)}
               </div>
               <div>
-                <strong>Message: </strong>{selectedNotification.Message}
+                <strong>Message: </strong>{getAlertMessage(selectedNotification)}
               </div>
               <div>
-                <strong>Date d'envoi: </strong>{selectedNotification.DateEnvoi}
+                <strong>Date d'envoi: </strong>{new Date(selectedNotification.datedeCreation).toLocaleDateString()}
               </div>
             </div>
           </div>
