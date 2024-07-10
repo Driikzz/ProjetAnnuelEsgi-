@@ -4,7 +4,6 @@ import rdvService from '../services/RdvService';
 import UserService from '../services/UserService';
 import { useParams } from 'react-router-dom';
 import DuoService from '../services/DuoService';
-import { all } from 'axios';
 
 const PriseRdvScreen: React.FC = () => {
   const token = localStorage.getItem('token') || '';
@@ -58,16 +57,13 @@ const PriseRdvScreen: React.FC = () => {
     }
   }, [token, tuteurId]);
 
-  
   const filterAlternantUsers = allusers.filter((user) =>
-  duo.some((d) => d.idAlternant === user.id)
-);
-
-  const  filterSuiveurUsers = allusers.filter((user) =>
-    duo.some((d) => d.idSuiveur === user.id)
+    duo.some((d) => d.idAlternant === user.id)
   );
 
- 
+  const filterSuiveurUsers = allusers.filter((user) =>
+    duo.some((d) => d.idSuiveur === user.id)
+  );
 
   useEffect(() => {
     if (duo.length > 0) {
@@ -90,8 +86,21 @@ const PriseRdvScreen: React.FC = () => {
       try {
         const response = await rdvService.createRdv(form, token);
         console.log(response);
+        // Afficher une popup de succès
+        window.alert('Le rendez-vous a été pris en compte avec succès!');
+        // Réinitialiser le formulaire après la réussite
+        setForm({
+          dateRdv: '',
+          idSuiveur: '',
+          idAlternant: '',
+          idTuteur: tuteurId,
+          formation: '',
+          entreprise: form.entreprise // Garder l'entreprise sélectionnée
+        });
       } catch (error) {
         console.error(error);
+        // Afficher une popup d'erreur
+        window.alert('Une erreur est survenue. Le rendez-vous n\'a pas pu être pris.');
       }
     }
   };

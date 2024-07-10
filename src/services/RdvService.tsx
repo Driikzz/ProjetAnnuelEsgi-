@@ -27,6 +27,19 @@ const rdvService = {
         } catch (error) {
             console.error(error);
         }
+    },
+    async cancelRdv(rdv:any, token: string) {
+        try {
+            const response = await axios.post(`${URL_API}/api/rdv/rdv/delete`, rdv, {
+                headers: {
+                    'Content-Type': 'application/json',
+                    Authorization: `Bearer ${token}`,
+                },
+            });
+            return response.data;
+        } catch (error) {
+            console.error(error);
+        }
     }
 };
 

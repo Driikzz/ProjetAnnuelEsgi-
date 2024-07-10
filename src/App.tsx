@@ -19,6 +19,7 @@ import store from './store/store';
 import { useAsyncStorage } from '@react-native-async-storage/async-storage';
 import UserService from './services/UserService';
 import GestionComptesScreenSuiveur from './screen/UsersListSuiveur';
+import RdvSuiveurScreen from './screen/rdvSuiveur';
 
 const App: React.FC = () => {
   const [token, setToken] = useState('');
@@ -128,8 +129,14 @@ const App: React.FC = () => {
                   <div className='navbar-item-title'><p>Gestion Comptes</p></div>
                 </Link>
               )}
-              {(data.role === 'Suiveur' || data.role === 'Tuteur') && (
+              {(data.role === 'Tuteur') && (
                 <Link to={`/rdv/${data.id}`} className='navbar-item'>
+                  <div className='navbar-item-icon'><p>📅</p></div>
+                  <div className='navbar-item-title'><p>Prise de RDV</p></div>
+                </Link>
+              )}
+              {(data.role === 'Suiveur') && (
+                <Link to={`/rdv/suiveur/${data.id}`} className='navbar-item'>
                   <div className='navbar-item-icon'><p>📅</p></div>
                   <div className='navbar-item-title'><p>Prise de RDV</p></div>
                 </Link>
@@ -250,6 +257,9 @@ const App: React.FC = () => {
             )}
             {(data.role === 'Suiveur') && (
               <Route path='/gestion-comptes-suiveurs' element={<GestionComptesScreenSuiveur />} />
+            )}
+            {(data.role === 'Suiveur') && (
+              <Route path='/rdv/suiveur/:id' element={<RdvSuiveurScreen />} />
             )}
 
             <Route path="*" element={<Navigate to="/home-suiveur" />} />
