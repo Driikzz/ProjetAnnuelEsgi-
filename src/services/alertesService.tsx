@@ -58,6 +58,20 @@ const AlertesService = {
       return null;
     }
   },
+  async traiterAlerte(id: number, token: string) {
+    try {
+      const response = await axios.put(`${URL_API}/alertes/${id}/traiter`, {}, {
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      return response.data;
+    } catch (error) {
+      console.error(error);
+      return null;
+    }
+  },
 };
 
 export default AlertesService;

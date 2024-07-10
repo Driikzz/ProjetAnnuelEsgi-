@@ -16,6 +16,7 @@ interface Notification {
   alternant: Person | null;
   suiveur: Person | null;
   tuteur: Person | null;
+  dateDeTraitement?: string; // Ajouter la propriété dateDeTraitement en optionnelle
 }
 
 interface Person {
@@ -30,7 +31,7 @@ const AlertesGeneralesScreen: React.FC = () => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [showPopup, setShowPopup] = useState(false);
   const [selectedNotification, setSelectedNotification] = useState<Notification | null>(null);
-  const [newNotifications, setNewNotifications] = useState(2); // Example of new notifications since last login
+  const [newNotifications, setNewNotifications] = useState(2); // Exemple de nouvelles notifications depuis la dernière connexion
   const { getItem } = useAsyncStorage('token');
   const [token, setToken] = useState<string>('');
 
@@ -47,16 +48,16 @@ const AlertesGeneralesScreen: React.FC = () => {
   useEffect(() => {
     const loadNotifications = async () => {
       if (token) {
-        const fetchedNotifications = await AlertesService.getAllAlertes(token);
-        for (let notification of fetchedNotifications) {
-          const duo = await DuoService.getDuoById(notification.duoId, token);
-          if (duo) {
-            notification.alternant = await UserService.getUserById(duo.idAlternant, token);
-            notification.suiveur = await UserService.getUserById(duo.idSuiveur, token);
-            notification.tuteur = await UserService.getUserById(duo.idTuteur, token);
-          }
+        try {
+          const fetchedNotifications = await AlertesService.getAllAlertes(token);
+          const untreatedAlertes = fetchedNotifications.filter((alerte : any) => !alerte.dateDeTraitement);
+          const treatedAlertes = fetchedNotifications.filter((alerte : any) => alerte.dateDeTraitement);
+
+          setNotifications(untreatedAlertes);
+          setTreatedNotifications(treatedAlertes);
+        } catch (error) {
+          console.error('Erreur lors du chargement des alertes:', error);
         }
-        setNotifications(fetchedNotifications);
       }
     };
 
@@ -71,11 +72,20 @@ const AlertesGeneralesScreen: React.FC = () => {
     setCurrentIndex((prevIndex) => (prevIndex === notifications.length - 1 ? 0 : prevIndex + 1));
   };
 
-  const handleDismiss = (id: number) => {
-    const dismissedNotification = notifications.find((notification) => notification.id === id);
-    if (dismissedNotification) {
-      setNotifications(notifications.filter((notification) => notification.id !== id));
-      setTreatedNotifications([...treatedNotifications, dismissedNotification]);
+  const handleDismiss = async (id: number) => {
+    try {
+      const updatedAlerte = await AlertesService.traiterAlerte(id, token);
+      if (updatedAlerte.dateDeTraitement) {
+        const dismissedNotification = notifications.find((notification) => notification.id === id);
+        if (dismissedNotification) {
+          setNotifications(notifications.filter((notification) => notification.id !== id));
+          setTreatedNotifications([...treatedNotifications, dismissedNotification]);
+        }
+      } else {
+        console.log("L'alerte n'a pas encore été traitée.");
+      }
+    } catch (error) {
+      console.error('Erreur lors du traitement de l\'alerte:', error);
     }
   };
 
@@ -113,7 +123,6 @@ const AlertesGeneralesScreen: React.FC = () => {
   };
 
   const visibleNotifications = notifications.slice(currentIndex, currentIndex + 3).concat(notifications.slice(0, Math.max(0, currentIndex + 3 - notifications.length)));
-  const allNotifications = [...notifications, ...treatedNotifications];
 
   return (
     <div className="container">
