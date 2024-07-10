@@ -15,6 +15,19 @@ const rdvService = {
             console.error(error);
         }
     },
+    async getRdvbySuiveurId(id: number, token: string) {
+        try {
+            const response = await axios.get(`${URL_API}/api/rdv/rdv/suiveur/${id}`, { 
+                headers: {
+                    'Content-Type': 'application/json',
+                    Authorization: `Bearer ${token}`,
+                },
+            });
+            return response.data;
+        } catch (error) {
+            console.error(error);
+        }
+    }
 };
 
 export default rdvService;
