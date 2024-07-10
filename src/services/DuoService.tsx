@@ -87,6 +87,20 @@ const DuoService = {
         }
     },
 
+    async getDuoByTuorId(id: number, token: string) {
+        try {
+            const response = await axios.get(`${URL_API}/api/duos/tuteur/${id}/duos`, {
+                headers: {
+                    'Content-Type': 'application/json',
+                    Authorization: `Bearer ${token}`,
+                },
+            });
+            return response.data;
+        } catch (error) {
+            console.error(error);
+        }
+    },
+
     async getDuoByEntrepriseId(id: number, token: string) {
         try {
             const response = await axios.get(`${URL_API}/api/duos/entreprise/${id}/duos`, {
