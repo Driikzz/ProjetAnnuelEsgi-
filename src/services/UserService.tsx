@@ -1,10 +1,10 @@
 import axios from "axios";
 import { IUser } from "../interfaces/IUsers";
-let URL_API = 'http://localhost:3000';
 
+let URL_API = 'http://10.1.1.35:3000';
 
 const UserService = {
-    
+
     async getProfile() {
         const response = await fetch(`${URL_API}/profile`, {
         method: 'GET',
@@ -77,14 +77,14 @@ const UserService = {
                     Authorization: `Bearer ${token}`,
                 },
             });
-    
+
             console.log(response);
             return response.data;
         } catch (error) {
             console.error(error);
         }
     },
-    
+
 
     async updateUser(user: IUser, userId :any , token: string) {
         try {
@@ -98,7 +98,7 @@ const UserService = {
         } catch (error) {
             console.error(error);
         }
-    }, 
+    },
 
     async deleteUser(userId: any, token: string) {
         try {
@@ -109,7 +109,7 @@ const UserService = {
                 },
             });
             return response.data;
-        } catch (error) {
+} catch (error) {
             console.error(error);
         }
     },
@@ -133,7 +133,7 @@ const UserService = {
             const response = await axios.get(`${URL_API}/api/duos/duos/suiveur/${suiveurId}/trialPeriodMeeting`, {
                 headers: {
                     'Content-Type': 'application/json',
-                    Authorization: `Bearer ${token}`,
+ Authorization: `Bearer ${token}`,
                 },
             });
             return response.data;
@@ -141,8 +141,7 @@ const UserService = {
             console.error(error);
         }
     }
-        
+
 };
-    
 
 export default UserService;
