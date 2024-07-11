@@ -5,7 +5,7 @@ import DashboardComponent from '../components/DashboardComponent';
 import AlternantsListComponent from '../components/AlternantsListComponent';
 import AlertesComponent from '../components/AlertesComponent';
 
-const HomeSuiveurPage: React.FC = () => {
+const HomeAdminPage: React.FC = () => {
   const [user, setUser] = useState<any>("");
   const [duoStartPeriod, setDuoStartPeriod] = useState<any[]>([]);
   const [duoMiPeriod, setDuoMiPeriod] = useState<any[]>([]);
@@ -54,9 +54,9 @@ const HomeSuiveurPage: React.FC = () => {
         alternants={[]} 
         suiveurDuo={suiveurDuo} 
       />
-      <AlertesComponent showExtractButton={false} />
+      <AlertesComponent showExtractButton={true} />
     </div>
   );
 };
 
-export default HomeSuiveurPage;
+export default HomeAdminPage;
