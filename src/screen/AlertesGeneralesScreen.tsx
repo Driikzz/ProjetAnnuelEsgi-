@@ -1,8 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import './styles/AlertesGeneralesScreen.css';
 import AlertesService from '../services/alertesService';
-import DuoService from '../services/DuoService';
-import UserService from '../services/UserService';
 import { useAsyncStorage } from '@react-native-async-storage/async-storage';
 
 interface Notification {
@@ -50,8 +48,8 @@ const AlertesGeneralesScreen: React.FC = () => {
       if (token) {
         try {
           const fetchedNotifications = await AlertesService.getAllAlertes(token);
-          const untreatedAlertes = fetchedNotifications.filter((alerte : any) => !alerte.dateDeTraitement);
-          const treatedAlertes = fetchedNotifications.filter((alerte : any) => alerte.dateDeTraitement);
+          const untreatedAlertes = fetchedNotifications.filter((alerte: any) => !alerte.dateDeTraitement);
+          const treatedAlertes = fetchedNotifications.filter((alerte: any) => alerte.dateDeTraitement);
 
           setNotifications(untreatedAlertes);
           setTreatedNotifications(treatedAlertes);

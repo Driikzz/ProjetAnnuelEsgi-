@@ -58,6 +58,7 @@ const AlertesService = {
       return null;
     }
   },
+  
   async traiterAlerte(id: number, token: string) {
     try {
       const response = await axios.put(`${URL_API}/alertes/${id}/traiter`, {}, {
