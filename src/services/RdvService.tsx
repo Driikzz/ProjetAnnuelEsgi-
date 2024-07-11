@@ -67,6 +67,20 @@ const rdvService = {
         } catch (error) {
             console.error(error);
         }
+    },
+
+    async getRdvByTutorId(id: number, token: string) {
+        try {
+            const response = await axios.get(`${URL_API}/api/rdv/rdv/tuteur/${id}`, {
+                headers: { 
+                    'Content-Type': 'application/json',
+                    Authorization: `Bearer ${token}`,
+                },
+            });
+            return response.data;
+        } catch (error) {
+            console.error(error);
+        }
     }
 };
 

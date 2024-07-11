@@ -285,7 +285,7 @@ const App: React.FC = () => {
               <>
                 <Route path="/home-suiveur" element={<HomeSuiveurPage />} />
                 <Route path='/suivisuiveur' element={<SuiviSuiveurScreen />} />
-                <Route path='/relances' element={<RelancesScreen />} />
+                <Route path='/relances/:id' element={<RelancesScreen />} />
                 <Route path='/gestion-entreprise' element={<GestionEntreprise />} />
                 <Route path='/gestion-comptes-suiveurs' element={<GestionComptesScreenSuiveur />} />
                 <Route path='/rdv/suiveur/:id' element={<RdvSuiveurScreen />} />
