@@ -40,6 +40,33 @@ const rdvService = {
         } catch (error) {
             console.error(error);
         }
+    },
+    async relance(id:any, token: string) {
+        try {
+            const response = await axios.get(`${URL_API}/api/rdv/rdv/relance/${id}`, { 
+                headers: {
+                    'Content-Type': 'application/json',
+                    Authorization: `Bearer ${token}`,
+                },
+            });
+            return response.data;
+        } catch (error) {
+            console.error(error);
+        }
+    },
+
+    async getDuoWithRdv(token: string, id :number) {
+        try {
+            const response = await axios.get(`${URL_API}/api/rdv/rdv/duo/${id}`, {  
+                headers: {
+                    'Content-Type': 'application/json',
+                    Authorization: `Bearer ${token}`,
+                },
+            });
+            return response.data;
+        } catch (error) {
+            console.error(error);
+        }
     }
 };
 

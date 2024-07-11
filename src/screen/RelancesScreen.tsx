@@ -1,36 +1,35 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import '../App.css'; // Assurez-vous que le chemin est correct
+import { useParams } from 'react-router-dom';
+import rdvService from '../services/RdvService';
 
 const RelancesScreen: React.FC = () => {
-  const [form, setForm] = useState({
-    date: '',
-    time: '',
-    suiveur: '',
-    entreprise: '',
-  });
+  const id = useParams().id;
+  const token = localStorage.getItem('token') || '';
+  const [duos, setDuos] = useState<any[]>([]);
+  
+  useEffect(() => {
+    const fetchDuoWithoutRdv = async () => {
+      try {
+        const response = await rdvService.getDuoWithRdv(token, id as any);
+        console.log('Duos sans rendez-vous:', response);
+        setDuos(response);
+      } catch (error) {
+        console.error('Erreur lors de la récupération des duos sans rendez-vous:', error);
+      }
+    }
+    if (token) {
+      fetchDuoWithoutRdv();
+    }
+  }, [token]);
 
-  const [entreprises, setEntreprises] = useState([
-    { name: 'Entreprise 1', status: 'Non relancé' },
-    { name: 'Entreprise 2', status: 'Relancé' },
-    // Ajoutez plus d'entreprises ici
-  ]);
-
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
-    setForm({
-      ...form,
-      [e.target.name]: e.target.value
-    });
-  };
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    console.log(form);
-  };
-
-  const handleRelancer = (index: number) => {
-    const newEntreprises = [...entreprises];
-    newEntreprises[index].status = 'Relancé';
-    setEntreprises(newEntreprises);
+  const handleRelancer = () => {
+    try {
+      rdvService.relance( id, token);
+      alert('Relance effectuée avec succès');
+    } catch (error) {
+      console.error('Erreur lors de la relance:', error);
+    }
   };
 
   return (
@@ -39,47 +38,19 @@ const RelancesScreen: React.FC = () => {
 
       <div className="entreprises-list">
         <h2>Liste des Entreprises avec Statut de Relance</h2>
-        <ul>
-          {entreprises.map((entreprise, index) => (
-            <li key={index}>
-              {entreprise.name} - {entreprise.status}
-              <button onClick={() => handleRelancer(index)}>Relancer</button>
-            </li>
+        <div className="card-container">
+          {duos.map((duo, index) => (
+            <div className="card" key={duo.id}>
+              <div className="card-content">
+                <h3>{duo?.enterpriseName}</h3>
+                <p>Suiveur :{duo.Suiveur.name} {duo.Suiveur.lastname}</p>
+                <p>Tuteur : {duo.Tuteur.name} {duo.Tuteur.lastname}</p>
+                <p>Alternant : {duo.Alternant.name} {duo.Alternant.lastname}</p>
+              </div>
+            </div>
           ))}
-        </ul>
-      </div>
-
-      <div className="form-container">
-        <h2>Formulaire de Prise de RDV avec Suiveur</h2>
-        <form onSubmit={handleSubmit}>
-          <div className="form-group">
-            <label htmlFor="entreprise">Entreprise :</label>
-            <input type="text" id="entreprise" name="entreprise" value={form.entreprise} onChange={handleChange} />
-          </div>
-          <div className="form-group">
-            <label htmlFor="date">Date :</label>
-            <input type="date" id="date" name="date" value={form.date} onChange={handleChange} />
-          </div>
-          <div className="form-group">
-            <label htmlFor="time">Heure :</label>
-            <input type="time" id="time" name="time" value={form.time} onChange={handleChange} />
-          </div>
-          <div className="form-group">
-            <label htmlFor="suiveur">Suiveur :</label>
-            <select id="suiveur" name="suiveur" value={form.suiveur} onChange={handleChange}>
-              <option value="">Sélectionner</option>
-              <option value="suiveur1">Suiveur 1</option>
-              <option value="suiveur2">Suiveur 2</option>
-              <option value="suiveur3">Suiveur 3</option>
-            </select>
-          </div>
-          <button type="submit">Soumettre</button>
-        </form>
-      </div>
-
-      <div className="calendar-container">
-        <h2>Calendrier des Disponibilités des Suiveurs</h2>
-        {/* Intégration du calendrier ici */}
+        </div>
+        <button onClick={() => handleRelancer()}>Relancer tous les duos</button> 
       </div>
     </div>
   );

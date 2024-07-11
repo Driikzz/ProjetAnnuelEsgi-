@@ -156,7 +156,7 @@ const App: React.FC = () => {
               )}
 
               {data.role === 'Suiveur' && (
-                <Link to="/relances" className='navbar-item'>
+                <Link to={`/relances/${data.id}`} className='navbar-item'>
                   <div className='navbar-item-icon'><p>🔄</p></div>
                   <div className='navbar-item-title'><p>Relances</p></div>
                 </Link>
@@ -241,7 +241,7 @@ const App: React.FC = () => {
               <Route path='/suivisuiveur' element={<SuiviSuiveurScreen />} />
             )}
             {data.role === 'Suiveur' && (
-              <Route path='/relances' element={<RelancesScreen />} />
+              <Route path='/relances/:id' element={<RelancesScreen />} />
             )}
             {(data.role === 'Suiveur' || data.role === 'Responsable pédagogique' || data.role === 'Admin / Directeur') && (
               <Route path='/gestion-entreprise' element={<GestionEntreprise />} />
